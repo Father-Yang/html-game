@@ -1,4 +1,4 @@
-export class InputHandler {
+class InputHandler {
     constructor(game){
         this.keys = [];
         this.game = game;

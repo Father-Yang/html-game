@@ -19,7 +19,7 @@ class Layer{
     }
 }
 
-export class Background {
+class Background {
     constructor(game){
         this.game = game;
         this.width = 1667;

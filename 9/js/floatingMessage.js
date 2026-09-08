@@ -1,4 +1,4 @@
-export class FloatingMessage{
+class FloatingMessage{
     constructor(value, x, y, targetX, targetY){
         this.value = value;
         this.x = x;

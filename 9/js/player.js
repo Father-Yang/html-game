@@ -5,11 +5,11 @@ import Player from './Player.js'
 new 实例化
 const p = new Player();
 注意：default 导入的时候，名字可以随便写，不强制和原类名一样：*/
-import {Sitting, Running, Jumping, Falling, Rolling, Diving, Hit} from "./playerStates.js";
-import {CollisionAnimation} from "./collisionAnimation.js";
-import { FloatingMessage } from "./floatingMessage.js";
+// import {Sitting, Running, Jumping, Falling, Rolling, Diving, Hit} from "./playerStates.js";
+// import {CollisionAnimation} from "./collisionAnimation.js";
+// import { FloatingMessage } from "./floatingMessage.js";
 
-export class Player {
+class Player {
     constructor(game){
         this.game = game;
         this.scale = 1;

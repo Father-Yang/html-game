@@ -1,4 +1,4 @@
-import { Dust, Fire, Splash } from "./particles.js";
+// import { Dust, Fire, Splash } from "./particles.js";
 
 const states = {
     SITTING:0,
@@ -17,7 +17,7 @@ class State{
     }
 }
 
-export class Sitting extends State{
+class Sitting extends State{
     constructor(game){
         super("SITTING",game);
     }
@@ -35,7 +35,7 @@ export class Sitting extends State{
     }
 }
 
-export class Running extends State{
+class Running extends State{
     constructor(game){
         super("RUNNING",game);
     }
@@ -60,7 +60,7 @@ export class Running extends State{
     }
 }
 
-export class Jumping extends State{
+class Jumping extends State{
     constructor(game){
         super("JUMPING",game);
     }
@@ -83,7 +83,7 @@ export class Jumping extends State{
     }
 }
 
-export class Falling extends State{
+class Falling extends State{
     constructor(game){
         super("FALLING",game);
     }
@@ -102,7 +102,7 @@ export class Falling extends State{
     }
 }
 
-export class Rolling extends State{
+class Rolling extends State{
     constructor(game){
         super("ROLLING",game);
     }
@@ -132,7 +132,7 @@ export class Rolling extends State{
     }
 }
 
-export class Diving extends State{
+class Diving extends State{
     constructor(game){
         super("DIVING",game);
     }
@@ -162,7 +162,7 @@ export class Diving extends State{
     }
 }
 
-export class Hit extends State{
+class Hit extends State{
     constructor(game){
         super("HIT",game);
     }

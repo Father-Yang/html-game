@@ -1,9 +1,9 @@
 /** @type {HTMLCanvasElement} */ // 类型注解，VSCode识别为HTMLCanvasElement
-import {Player} from "./js/player.js";
-import { InputHandler } from "./js/input.js";
-import { Background } from "./js/background.js";
-import { FlyingEnemy,GroundEnemy,ClimbingEnemy } from "./js/enemies.js";
-import { UI } from "./js/ui.js";
+// import {Player} from "./js/player.js";
+// import { InputHandler } from "./js/input.js";
+// import { Background } from "./js/background.js";
+// import { FlyingEnemy,GroundEnemy,ClimbingEnemy } from "./js/enemies.js";
+// import { UI } from "./js/ui.js";
 
 window.addEventListener('load', function(){
     const canvas = document.getElementById('canvas1');
@@ -145,23 +145,23 @@ window.addEventListener('load', function(){
     let timer = 0;
     function animate(timeStamp){
         const deltaTime = timeStamp - lastTime;
-        console.log("deltaTime===:" + timer);   
+        //console.log("deltaTime===:" + timer);   
         lastTime = timeStamp;
         
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         const fps = 1000 / 60.0;
         
         if(timer >= fps){   
-            console.log(timer);       
-            //game.update(timer);
+            //console.log(timer);       
+            game.update(timer);
             
             timer = 0;         
         }
         else{
             timer += deltaTime;
-            console.log("===:" + timer);   
+            //console.log("===:" + timer);   
         }
-        //game.draw(ctx);
+        game.draw(ctx);
         // 关闭像素平滑，需要每次刷新都设置
         //ctx.imageSmoothingEnabled = false;
         //ctx.mozImageSmoothingEnabled = false; //火狐兼容    

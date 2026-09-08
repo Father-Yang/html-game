@@ -5,7 +5,7 @@ class Particle {
     }
 }
 
-export class Dust extends Particle{
+class Dust extends Particle{
     constructor(game, x, y){
         super(game);
         this.x = x;
@@ -29,7 +29,7 @@ export class Dust extends Particle{
     }
 }
 
-export class Fire extends Particle{
+class Fire extends Particle{
     constructor(game, x, y){
         super(game);
         this.x = x;
@@ -62,7 +62,7 @@ export class Fire extends Particle{
     }
 }
 
-export class Splash extends Particle{
+class Splash extends Particle{
      constructor(game, x, y){
         super(game);
         this.image = document.getElementById('fire');
