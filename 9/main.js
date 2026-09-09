@@ -137,13 +137,22 @@ window.addEventListener('load', function(){
                 this.enemies.push(new ClimbingEnemy(this));
             this.enemies.push(new FlyingEnemy(this));  
         }
+        autoScale(){
+		    let scale = Math.min(window.innerWidth/canvas.width,window.innerHeight/canvas.height);
+		    if(Math.abs(scale-1)<0.005) scale=1;
+		    canvas.style.width = canvas.width * scale +'px';
+		    canvas.style.height = canvas.height * scale +'px';
+	    }
     }
+
+
 
     const game = new Game( canvas.width, canvas.height);
 
     let lastTime = 0;
     let timer = 0;
     function animate(timeStamp){
+        game.autoScale();
         const deltaTime = timeStamp - lastTime;
         //console.log("deltaTime===:" + timer);   
         lastTime = timeStamp;
