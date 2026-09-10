@@ -1,13 +1,17 @@
 class Player {
-    constructor(){
+    constructor(game){
+        this.game = game;
+        this.animationPlayer = new AnimationPlayer("player");
         this.stateMachine = new StateMachine();
-        this.stateMachine.init(new PlayerIdleState(this.stateMachine));
+        this.idleState = new PlayerIdleState(this, this.stateMachine);
+        this.runState = new PlayerRunState(this, this.stateMachine);
+        this.stateMachine.init(this.idleState);
     }
     update(deltaTime){
         this.stateMachine.currentState.update();
     }
     draw(context){
-      
+        this.animationPlayer.draw(context);
     }
     
     onGround(){

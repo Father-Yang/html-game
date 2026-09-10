@@ -16,9 +16,8 @@ window.addEventListener('load', function(){
             this.maxSpeed = 3;
             this.gravity = 1; // 游戏重力
             this.groundMargin = 80;
-
-            this.player = new Player(this);
-            this.input = new InputHandler(this);
+            
+            this.player = new Player(this);   
       
         }
         update(deltaTime){
@@ -40,18 +39,18 @@ window.addEventListener('load', function(){
 
     let lastTime = 0;
     let timer = 0;
-    
+
     function animate(timeStamp){
         game.autoScale();
         const deltaTime = timeStamp - lastTime;
-        //console.log("deltaTime===:" + timer);   
+        // console.log("deltaTime===:" + timer);   
         lastTime = timeStamp;
         
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         const fps = 1000 / 60.0;
         
         if(timer >= fps){   
-            //console.log(timer);       
+            // console.log(timer);       
             game.update(timer);
             
             timer = 0;         
