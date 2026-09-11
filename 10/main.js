@@ -7,7 +7,7 @@ window.addEventListener('load', function(){
 
     class Game {
         constructor(width, height){
-            this.debug = false;
+            this.debug = true;
 
             this.width = width;
             this.height = height;
@@ -37,36 +37,45 @@ window.addEventListener('load', function(){
 
     const game = new Game( canvas.width, canvas.height);
 
-    let lastTime = 0;
     let timer = 0;
+    let lastTime = performance.now();
+    const logicFPS = 1000 / 60.0;
+    let debug_timer = 1;
 
     function animate(timeStamp){
-        game.autoScale();
-        const deltaTime = timeStamp - lastTime;
-        // console.log("deltaTime===:" + timer);   
-        lastTime = timeStamp;
-        
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        const fps = 1000 / 60.0;
-        
-        if(timer >= fps){   
-            // console.log(timer);       
-            game.update(timer);
-            
-            timer = 0;         
-        }
-        else{
-            timer += deltaTime;
-            //console.log("===:" + timer);   
-        }
-        game.draw(ctx);
-
         // 关闭像素平滑，需要每次刷新都设置
         ctx.imageSmoothingEnabled = false;
-        ctx.mozImageSmoothingEnabled = false; //火狐兼容    
+        ctx.mozImageSmoothingEnabled = false; //火狐兼容   
 
+        game.autoScale();
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        const deltaTime = timeStamp - lastTime;
+
+        lastTime = timeStamp;
+        timer += deltaTime;
+
+        if(timer >= logicFPS){        
+            game.update(timer); 
+            debug_timer = timer;
+            timer -= logicFPS;         
+        }
+        game.draw(ctx);
+        if(game.debug) {
+            ctx.save();
+
+            ctx.font = '10px Segoe UI';
+            ctx.textAlign = "left";
+            ctx.fillStyle = "black";
+            ctx.fillText("LogicFPS:" + (1000 / debug_timer).toFixed(1), 20, 10);
+            ctx.fillText("RenderFPS:" + (1000 / deltaTime).toFixed(1), 20, 20);
+
+            ctx.restore();
+        }  
+ 
         requestAnimationFrame(animate);
     }
     animate(0);
+
 });
 

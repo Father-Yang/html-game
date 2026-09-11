@@ -12,8 +12,8 @@ class StateMachine{
         this.currentState = state;
         this.currentState.enter();
     }
-    update(){
-        this.currentState.update();
+    update(deltaTime){
+        this.currentState.update(deltaTime);
     }
 }
 //状态
@@ -26,8 +26,11 @@ class State{
     enter(){
         console.log(this.stateName + ":enter");  
     }
-    update(){
+    update(deltaTime){
         console.log(this.stateName + ":update");  
+        if(Input.isKeyDown("q")) {
+            this.stateMachine.change(this.player.dashState);
+        }
     }
     exit(){
         console.log(this.stateName + ":exit");  
@@ -42,12 +45,12 @@ class PlayerIdleState extends State{
         super.enter();
         this.player.animationPlayer.play("Idle");
     }
-    update(){
-        super.update();
-        this.player.animationPlayer.update();
-        const v = Input.getVector();
-        if(v.x !== 0)
+    update(deltaTime){
+        super.update(deltaTime);
+        this.player.animationPlayer.update(deltaTime);
+        if(Input.getVector().x !== 0){
             this.stateMachine.change(this.player.runState);
+        }
     }
     exit(){
         super.exit();
@@ -61,15 +64,41 @@ class PlayerRunState extends State{
     }
     enter(){    
         super.enter();
+        this.player.animationPlayer.play("Run");
     }
-    update(){
-        super.update();
-        const v = Input.getVector();
-        if(v.x === 0)
+    update(deltaTime){
+        super.update(deltaTime);
+        this.player.animationPlayer.update(deltaTime);
+        if(Input.getVector().x === 0){
             this.stateMachine.change(this.player.idleState);
+        }   
     }
     exit(){
         super.exit();
+    }
+
+}
+
+class PlayerDashState extends State{
+    constructor(player, stateMachine){
+        super(player, stateMachine, "Dash");
+    }
+    enter(){    
+        super.enter();
+        this.stateTimer = 0.5 * 1000;
+        this.player.animationPlayer.play("Dash");
+    }
+    update(deltaTime){
+        super.update(deltaTime);
+        this.player.animationPlayer.update(deltaTime);
+        this.stateTimer -= deltaTime;
+        if(this.stateTimer <= 0){
+            this.stateMachine.change(this.player.idleState);
+        }
+    }
+    exit(){
+        super.exit();
+        this.stateTimer = 0.5 * 1000;
     }
 
 }

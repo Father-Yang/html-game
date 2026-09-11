@@ -23,38 +23,42 @@ class Sprite{
 }
 
 class Animation {
-    constructor(image) {
-
+    constructor(name, image, size, startPos, endPos) {
+        this.name = name;
+        
         this.image = image;
         this.frameList = [];
         this.currentFrame = 0;
 
-        const size = new Vector2(69, 44);
-        const start = new Vector2(0,0);
-        const end   = new Vector2(5,0);
+        this.size = size;
+        this.startPos = startPos;
+        this.endPos   = endPos;
 
-        this.hframes = this.image.width / size.x;
-        this.vframes = this.image.height / size.y ;
+        this.hframes = this.image.width / this.size.x;
+        // this.vframes = this.image.height / this.size.y;
 
-        if((end.y - start.y) === 0) this.frames = end.x - start.x + 1;
-        else if((end.y - start.y) === 1) this.frames = (this.hframes - start.x) + (this.hframes - end.x);
-        else if((end.y - start.y) > 1) this.frames = (this.hframes - start.x) + (this.hframes - end.x) + (end.y - start.y - 1) * this.hframes;
-
+        if((this.endPos.y - this.startPos.y) === 0) {
+            this.frames = this.endPos.x - this.startPos.x + 1;
+            console.log("1:" + this.name + "==" + this.frames);
+        }
+        else if((this.endPos.y - this.startPos.y) === 1) {
+            this.frames = (this.hframes - this.startPos.x) + (this.endPos.x + 1) + (this.endPos.y - this.startPos.y - 1) * this.hframes;
+            console.log("2:" + this.name + "==" + this.frames);
+        }     
         
         for(let i = 0; i < this.frames; i++){
-            //let position = start.add(new Vector2(1,0));
-            let position = new Vector2(i, 0).mul(size);
-            this.frameList.push(new Sprite(image, size, position));
+            let position = new Vector2((startPos.x + i) % this.hframes , startPos.y + Math.trunc((startPos.x + i) / this.hframes));
+            console.log(position.x, "====", position.y);
+            this.frameList.push(new Sprite(image, size, position.mul(size)));
         }
-        console.log(this.frameList)
+
         this.scale = 1;
 
-
         this.isPlaying = false;
-        // 动画当前时间（单位：秒）
-        this.time = 0;
-        // 动画总时长，自己设置
-        this.duration = 1.0;
+        // 
+        this.timer = 0;
+        // 
+        this.duration = 1000 / 10;
         // 播放速度 1=正常，0.5=慢放，2=加速
         this.speed = 1;
         // 是否循环
@@ -66,9 +70,10 @@ class Animation {
     }
 
     // 播放
-    play() {
+    play(playFrame = 0) {
         if (this.isPlaying) return;
         this.isPlaying = true;
+        this.currentFrame = playFrame;
     }
 
     // 暂停
@@ -82,16 +87,24 @@ class Animation {
         this.time = 0;
     }
 
-    // 核心更新函数：每一帧调用，deltaTime 是距离上一帧的时间（秒）
+
     update(deltaTime) {
-        if(this.currentFrame >= 5){
-            if(this.loop) this.currentFrame = 0;
+        if(this.timer >= this.duration){
+            // console.log(this.timer, "---", this.duration);
+            if(this.currentFrame >= (this.frames-1)){
+                if(this.loop) this.currentFrame = 0;
+            }
+            else{
+                this.currentFrame ++;
+            }
+            this.frameList[this.currentFrame].globalPosition = new Vector2(110, 100);
+            this.timer = 0;
         }
         else{
-            this.currentFrame ++;
+            this.timer += deltaTime;
         }
-        this.frameList[this.currentFrame].globalPosition = new Vector2(110, 100);
     }
+
     draw(context){
         this.frameList[this.currentFrame].draw(context);
     }
@@ -105,10 +118,17 @@ class AnimationPlayer {
         const image = document.getElementById(name);
         if(image){
             if(name === "player"){
-                const idleAnim = new Animation(image);
+                const idleAnim = new Animation("Idle",image, new Vector2(69,44), new Vector2(0,0), new Vector2(5,0));
                 idleAnim.loop = true;
                 this.addAnimation("Idle", idleAnim);
-                this.addAnimation("Run", new Animation(image));
+
+                const runAnim = new Animation("Run",image, new Vector2(69,44), new Vector2(0,1), new Vector2(1,2));
+                runAnim.loop = true;
+                this.addAnimation("Run", runAnim);
+
+                const dashAnim = new Animation("Dash",image, new Vector2(69,44), new Vector2(3,11), new Vector2(0,12));
+                dashAnim.loop = true;
+                this.addAnimation("Dash", dashAnim);
             }   
         }
     }
@@ -119,11 +139,12 @@ class AnimationPlayer {
         const anim = this.animations.get(name);
         if (!anim) return;
         this.currentAnim = anim;
-        anim.play();
+        this.currentAnim.play();
     }
     update(deltaTime) {
         if (this.currentAnim) {
             this.currentAnim.update(deltaTime);
+            // console.log(this.currentAnim.name)
         }
     }
     draw(context){
