@@ -5,10 +5,11 @@ window.addEventListener('load', function(){
     canvas.width = 640;
     canvas.height = 360;
 
+    debug = true;
+
     class Game {
         constructor(width, height){
-            this.debug = true;
-
+            
             this.width = width;
             this.height = height;
 
@@ -28,8 +29,8 @@ window.addEventListener('load', function(){
         }
         // 自动适配屏幕大小
         autoScale(){
-		    let scale = Math.min(window.innerWidth/canvas.width,window.innerHeight/canvas.height);
-		    if(Math.abs(scale-1)<0.005) scale=1;
+		    let scale = Math.min(window.innerWidth / canvas.width, window.innerHeight / canvas.height);
+		    if(Math.abs(scale-1) < 0.005) scale = 1;
 		    canvas.style.width = canvas.width * scale +'px';
 		    canvas.style.height = canvas.height * scale +'px';
 	    }
@@ -56,12 +57,12 @@ window.addEventListener('load', function(){
         timer += deltaTime;
 
         if(timer >= logicFPS){        
-            game.update(timer); 
+            game.update(timer * 0.001); 
             debug_timer = timer;
             timer -= logicFPS;         
         }
         game.draw(ctx);
-        if(game.debug) {
+        if(debug) {
             ctx.save();
 
             ctx.font = '10px Segoe UI';

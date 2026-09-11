@@ -1,72 +1,49 @@
 class Sprite{
-    constructor(image, size, position, globalPosition){
+    constructor(image, size, frameCoord, globalPosition = new Vector2(0,0)){
         this.image = image;
         this.size = size;
-        this.position = position;
-        this.globalPosition = new Vector2(0, 0);
-        this.scale = 2.0;
-        this.flipH = false;
-        
+        this.frameCoord = frameCoord;
+        this.globalPosition = globalPosition;
+        this.scale = 1.5;
+        this.facingRight = true;
+        this.anchor = new Vector2(0.5, 1);
     }
 
     draw(context){
+
         context.save();
         // 把原点移到图片右侧
-        //context.translate(this.size.x , 0);
+        context.translate(this.globalPosition.x, this.globalPosition.y);
         // X轴缩放-1，镜像
-        context.scale(1, 1);
+        context.scale(this.facingRight?1:-1, 1);
+        // console.log(this.globalPosition);
         context.drawImage(this.image, 
-        this.position.x , this.position.y, this.size.x, this.size.y, 
-        this.globalPosition.x , this.globalPosition.y, this.size.x * this.scale, this.size.y * this.scale);
+            this.frameCoord.x , this.frameCoord.y, this.size.x, this.size.y, 
+            -this.size.x * (this.facingRight?this.anchor.x:(1-this.anchor.x)), -this.size.y * this.anchor.y, this.size.x * this.scale, this.size.y * this.scale);
+        if(debug){
+            context.strokeRect(-this.size.x * (this.facingRight?this.anchor.x:(1-this.anchor.x)), -this.size.y * this.anchor.y, this.size.x * this.scale, this.size.y * this.scale);
+        }
         context.restore();
+
+        // this.flip = false;
     }
 }
 
 class Animation {
-    constructor(name, image, size, startPos, endPos) {
+    constructor(name, frameList) {
         this.name = name;
         
-        this.image = image;
-        this.frameList = [];
+        this.frameList = frameList;
         this.currentFrame = 0;
 
-        this.size = size;
-        this.startPos = startPos;
-        this.endPos   = endPos;
-
-        this.hframes = this.image.width / this.size.x;
-        // this.vframes = this.image.height / this.size.y;
-
-        if((this.endPos.y - this.startPos.y) === 0) {
-            this.frames = this.endPos.x - this.startPos.x + 1;
-            console.log("1:" + this.name + "==" + this.frames);
-        }
-        else if((this.endPos.y - this.startPos.y) === 1) {
-            this.frames = (this.hframes - this.startPos.x) + (this.endPos.x + 1) + (this.endPos.y - this.startPos.y - 1) * this.hframes;
-            console.log("2:" + this.name + "==" + this.frames);
-        }     
-        
-        for(let i = 0; i < this.frames; i++){
-            let position = new Vector2((startPos.x + i) % this.hframes , startPos.y + Math.trunc((startPos.x + i) / this.hframes));
-            console.log(position.x, "====", position.y);
-            this.frameList.push(new Sprite(image, size, position.mul(size)));
-        }
-
         this.scale = 1;
-
         this.isPlaying = false;
-        // 
         this.timer = 0;
-        // 
-        this.duration = 1000 / 10;
-        // 播放速度 1=正常，0.5=慢放，2=加速
-        this.speed = 1;
-        // 是否循环
-        this.loop = false;
-        // 每一帧的回调，用于更新位置/属性
-        this.onUpdate = null;
-        // 动画结束回调
-        this.onComplete = null;
+        this.duration = 1 / 10;
+        this.speed = 1;// 播放速度 1=正常，0.5=慢放，2=加速
+        this.loop = true;// 是否循环
+        this.onUpdate = null;// 每一帧的回调，用于更新位置/属性
+        this.onComplete = null;// 动画结束回调
     }
 
     // 播放
@@ -87,17 +64,16 @@ class Animation {
         this.time = 0;
     }
 
-
     update(deltaTime) {
         if(this.timer >= this.duration){
             // console.log(this.timer, "---", this.duration);
-            if(this.currentFrame >= (this.frames-1)){
+            if(this.currentFrame >= (this.frameList.length-1)){
                 if(this.loop) this.currentFrame = 0;
             }
             else{
                 this.currentFrame ++;
             }
-            this.frameList[this.currentFrame].globalPosition = new Vector2(110, 100);
+
             this.timer = 0;
         }
         else{
@@ -111,36 +87,26 @@ class Animation {
 }
 
 class AnimationPlayer {
-    constructor(name) {
+    constructor() {
         this.animations = new Map();
         this.currentAnim = null;
-
-        const image = document.getElementById(name);
-        if(image){
-            if(name === "player"){
-                const idleAnim = new Animation("Idle",image, new Vector2(69,44), new Vector2(0,0), new Vector2(5,0));
-                idleAnim.loop = true;
-                this.addAnimation("Idle", idleAnim);
-
-                const runAnim = new Animation("Run",image, new Vector2(69,44), new Vector2(0,1), new Vector2(1,2));
-                runAnim.loop = true;
-                this.addAnimation("Run", runAnim);
-
-                const dashAnim = new Animation("Dash",image, new Vector2(69,44), new Vector2(3,11), new Vector2(0,12));
-                dashAnim.loop = true;
-                this.addAnimation("Dash", dashAnim);
-            }   
-        }
     }
-    addAnimation(name, animObj) {
+    initAnimations(sprites){
+        sprites.forEach((frameList, animName) => {
+            this.#addAnimation(animName, new Animation(animName, frameList));
+        });
+    }
+    #addAnimation(name, animObj) {
         this.animations.set(name, animObj);
     }
+
     play(name) {
         const anim = this.animations.get(name);
         if (!anim) return;
         this.currentAnim = anim;
         this.currentAnim.play();
     }
+
     update(deltaTime) {
         if (this.currentAnim) {
             this.currentAnim.update(deltaTime);

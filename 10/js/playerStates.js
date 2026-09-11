@@ -24,16 +24,16 @@ class State{
         this.stateName = stateName;
     }
     enter(){
-        console.log(this.stateName + ":enter");  
+        //console.log(this.stateName + ":enter");  
     }
     update(deltaTime){
-        console.log(this.stateName + ":update");  
+        //console.log(this.stateName + ":update");  
         if(Input.isKeyDown("q")) {
             this.stateMachine.change(this.player.dashState);
         }
     }
     exit(){
-        console.log(this.stateName + ":exit");  
+        //console.log(this.stateName + ":exit");  
     }
 }   
 
@@ -69,9 +69,11 @@ class PlayerRunState extends State{
     update(deltaTime){
         super.update(deltaTime);
         this.player.animationPlayer.update(deltaTime);
-        if(Input.getVector().x === 0){
+        const velocity = Input.getVector();
+        if(velocity.x === 0){
             this.stateMachine.change(this.player.idleState);
-        }   
+        }
+        this.player.setVelocity(new Vector2(velocity.x * this.player.moveSpeed * deltaTime, velocity.y));   
     }
     exit(){
         super.exit();
@@ -85,7 +87,7 @@ class PlayerDashState extends State{
     }
     enter(){    
         super.enter();
-        this.stateTimer = 0.5 * 1000;
+        this.stateTimer = 0.5;
         this.player.animationPlayer.play("Dash");
     }
     update(deltaTime){
@@ -98,7 +100,7 @@ class PlayerDashState extends State{
     }
     exit(){
         super.exit();
-        this.stateTimer = 0.5 * 1000;
+        this.stateTimer = 0.5;
     }
 
 }
