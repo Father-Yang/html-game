@@ -18,14 +18,20 @@ window.addEventListener('load', function(){
             this.gravity = 10; // 游戏重力
             this.groundMargin = 20;
             
-            this.player = new Player(this);   
+            this.player = new Player(this);  
+            this.camera = new Camera(this);
+            this.camera.follow(this.player);
       
         }
         update(deltaTime){
+            this.camera.update(deltaTime);
             this.player.update(deltaTime);
         }
         draw(context){
+            context.save();
+            this.camera.draw(context);
             this.player.draw(context);
+            context.restore();
         }
         // 自动适配屏幕大小
         autoScale(){
@@ -38,17 +44,22 @@ window.addEventListener('load', function(){
 
     const game = new Game( canvas.width, canvas.height);
 
+    game.autoScale(); //页面一打开就执行一次
+    window.addEventListener('resize', () => {
+        game.autoScale()
+    });
+
     let timer = 0;
     let lastTime = performance.now();
     const logicFPS = 1000 / 60.0;
     let debug_timer = 1;
+
 
     function animate(timeStamp){
         // 关闭像素平滑，需要每次刷新都设置
         ctx.imageSmoothingEnabled = false;
         ctx.mozImageSmoothingEnabled = false; //火狐兼容   
 
-        game.autoScale();
         ctx.clearRect(0, 0, canvas.width, canvas.height);
 
         const deltaTime = timeStamp - lastTime;

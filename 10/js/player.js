@@ -6,9 +6,9 @@ class Player {
 
         this.velocity = new Vector2(0, 0); //角色速度向量
         this.moveSpeed = 200;//角色x轴移动速度
-        this.jumpSpeed = 6;//角色跳跃速度
+        this.jumpSpeed = 10;//角色跳跃速度
         this.game.gravity = 12; // 游戏重力
-        this.inAirMoveMultiplier = 0.1;//角色离地在空中的时候，水平移动速度会乘上这个系数
+        this.inAirMoveMultiplier = 0.7;//角色离地在空中的时候，水平移动速度会乘上这个系数
 
         this.facingRight = true; //角色是否朝右
 
