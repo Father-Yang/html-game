@@ -12,6 +12,12 @@ class Player {
 
         this.facingRight = true; //角色是否朝右
 
+        this.scale = 1.5;//图片缩放倍数
+        
+        this.size = new Vector2(69,44); //单帧图片大小
+        this.anchor = new Vector2(0.4, 1).mul(this.scale).mul(this.size);//锚点位置
+        this.colliderSize = new Vector2(26, 48);//碰撞体大小
+
         this.globalPosition = new Vector2(100, 300); //角色全局坐标
 
         this.sprites = new Map(); // 角色精灵图集
@@ -29,35 +35,32 @@ class Player {
 
         this.stateMachine.init(this.idleState);//初始化状态机
 
+        //设置碰撞体
+        this.collider = new CapsuleCollider(this.globalPosition,this.colliderSize,this);
+
     }
 
     #initSprites(imageID){
         const image = document.getElementById(imageID);
-        const size = new Vector2(69,44); //单帧图片大小
         const sprites_config = [
             {"Idle":
                 {startPos:{x:0, y:0},
-                 endPos:{x:5, y:0},
-                 anchor:{x:0.4, y:1}}},
+                 endPos:{x:5, y:0}}},
             {"Run":
                 {startPos:{x:0, y:1},
-                 endPos:{x:1, y:2},
-                 anchor:{x:0.4, y:1}}}, 
+                 endPos:{x:1, y:2}}}, 
             {"Jump":
                 {startPos:{x:5, y:6},
-                 endPos:{x:2, y:7},
-                 anchor:{x:0.4, y:1}}},    
+                 endPos:{x:2, y:7}}},    
             {"Fall":
                 {startPos:{x:3, y:7},
-                 endPos:{x:0, y:8},
-                 anchor:{x:0.4, y:1}}},       
+                 endPos:{x:0, y:8}}},       
             {"Dash":
                 {startPos:{x:3, y:11},
-                 endPos:{x:0, y:12},
-                 anchor:{x:0.4, y:1}}},
+                 endPos:{x:0, y:12}}},
         ];
         if(image){
-            const hframe = image.width / size.x; 
+            const hframe = image.width / this.size.x; 
             sprites_config.forEach(item => {
                 const [name, info] = Object.entries(item)[0];
                 const {startPos, endPos, anchor} = info;
@@ -72,9 +75,10 @@ class Player {
                 const frames = [];
                 for(let i = 0; i < frameNum; i++){
                     let frameCoord = new Vector2((startPos.x + i) % hframe , startPos.y + Math.trunc((startPos.x + i) / hframe));
-                    const sprite = new Sprite(image, size, frameCoord.mul(size), this.globalPosition);
+                    const sprite = new Sprite(image, this.size, frameCoord.mul(this.size), this.globalPosition);
                     sprite.facingRight = this.facingRight;
-                    sprite.anchor = new Vector2(anchor.x, anchor.y);
+                    sprite.anchor = this.anchor;
+                    sprite.scale = this.scale
                     frames.push(sprite);
 
                 }
@@ -103,6 +107,8 @@ class Player {
         this.stateMachine.update(deltaTime);//状态机更新
         this.globalPosition.addEqual(this.velocity);//全局坐标更新
         // console.log("player:",this.globalPosition);
+        this.collider.setPosition(this.globalPosition.sub(this.colliderSize.x * 0.5, this.colliderSize.y));
+
         const spriteFrames = this.sprites.get(this.animationPlayer.currentAnim.name);
         spriteFrames.forEach(sprite =>{
             sprite.facingRight = this.facingRight;
@@ -112,6 +118,7 @@ class Player {
     }
 
     draw(context){
+        this.collider.draw(context);
         // console.log(this.animationPlayer.currentAnim);
         this.animationPlayer.draw(context);
     }

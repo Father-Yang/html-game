@@ -2,7 +2,7 @@ class Camera {
     #margin = {
         left: 0.3,   
         right: 0.3,   
-        top: 0.2,     
+        top: 0.5,     
         bottom: 0.2   
     };
     #leftLimit = 0;
@@ -52,7 +52,7 @@ class Camera {
         context.translate(-this.globalPosition.x, -this.globalPosition.y);
         if(debug){
             context.save();
-            context.strokeStyle = 'rgba(255, 0, 0, 0.8)';
+            context.strokeStyle = 'rgba(255, 0, 0, 0.5)';
             context.lineWidth = 1;
             context.setLineDash([5, 5]); // 虚线
             context.strokeRect(

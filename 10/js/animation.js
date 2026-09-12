@@ -1,12 +1,12 @@
 class Sprite{
-    constructor(image, size, frameCoord, globalPosition = new Vector2(0,0)){
+    constructor(image, size, frameCoord, globalPosition = new Vector2(0,0), anchor = new Vector2(0,0), scale = 1){
         this.image = image;
         this.size = size;
         this.frameCoord = frameCoord;
         this.globalPosition = globalPosition;
-        this.scale = 1.5;
         this.facingRight = true;
-        this.anchor = new Vector2(0.5, 1);
+        this.anchor = anchor;
+        this.scale = scale;
     }
 
     draw(context){
@@ -16,17 +16,27 @@ class Sprite{
         context.translate(this.globalPosition.x, this.globalPosition.y);
         // X轴缩放-1，镜像
         context.scale(this.facingRight?1:-1, 1);
-        //TODO 改成旋转方式？？？？？？？？
         // console.log(this.globalPosition);
-        context.drawImage(this.image, 
-            this.frameCoord.x , this.frameCoord.y, this.size.x, this.size.y, 
-            -this.size.x * (this.facingRight?this.anchor.x:(1-this.anchor.x)), -this.size.y * this.anchor.y, this.size.x * this.scale, this.size.y * this.scale);
+        context.drawImage(
+            this.image,
+            this.frameCoord.x, this.frameCoord.y, this.size.x, this.size.y,
+            -this.anchor.x, 
+            -this.anchor.y,
+            this.size.x * this.scale,
+            this.size.y * this.scale
+        );
         if(debug){
-            context.strokeRect(-this.size.x * (this.facingRight?this.anchor.x:(1-this.anchor.x)), -this.size.y * this.anchor.y, this.size.x * this.scale, this.size.y * this.scale);
+            context.strokeRect(
+                -this.anchor.x, 
+                -this.anchor.y,
+                this.size.x * this.scale,
+                this.size.y * this.scale);
+            context.fillStyle = 'red'; // 或你要的颜色
+            context.beginPath();
+            context.arc(0, 0, 2, 0, Math.PI * 2); // 半径3像素
+            context.fill();
         }
         context.restore();
-
-        // this.flip = false;
     }
 }
 

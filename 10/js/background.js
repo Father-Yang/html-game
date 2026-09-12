@@ -28,7 +28,7 @@ class ParallaxBackground {
             for(let i=0;i<layer.loops;i++){
                 const imgW = layer.image.width;
                 const imgH = layer.image.height;
-                console.log(layer.position.x + (i * imgW * layer.scale) - layer.offsetX);
+                // console.log(layer.position.x + (i * imgW * layer.scale) - layer.offsetX);
                 context.drawImage(layer.image, 
                     0, 0, imgW, imgH,
                     layer.position.x + Math.floor((i * imgW * layer.scale) - layer.offsetX), layer.position.y, imgW * layer.scale, imgH * layer.scale);

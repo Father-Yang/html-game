@@ -82,9 +82,9 @@ window.addEventListener('load', function(){
 
             ctx.font = '10px Segoe UI';
             ctx.textAlign = "left";
-            ctx.fillStyle = "black";
-            ctx.fillText("LogicFPS:" + (1000 / debug_timer).toFixed(1), 20, 10);
-            ctx.fillText("RenderFPS:" + (1000 / deltaTime).toFixed(1), 20, 20);
+            ctx.fillStyle = "green";
+            ctx.fillText("Update:" + (1000 / debug_timer).toFixed(1), 20, 10);
+            ctx.fillText("Render:" + (1000 / deltaTime).toFixed(1), 20, 20);
 
             ctx.restore();
         }  
