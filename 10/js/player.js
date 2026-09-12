@@ -6,10 +6,13 @@ class Player {
 
         this.velocity = new Vector2(0, 0); //角色速度向量
         this.moveSpeed = 200;//角色x轴移动速度
+        this.jumpSpeed = 6;//角色跳跃速度
+        this.game.gravity = 12; // 游戏重力
+        this.inAirMoveMultiplier = 0.1;//角色离地在空中的时候，水平移动速度会乘上这个系数
 
         this.facingRight = true; //角色是否朝右
 
-        this.globalPosition = new Vector2(100, 3w00); //角色全局坐标
+        this.globalPosition = new Vector2(100, 300); //角色全局坐标
 
         this.sprites = new Map(); // 角色精灵图集
         this.#initSprites("player"); 
@@ -20,6 +23,8 @@ class Player {
         //角色状态
         this.idleState = new PlayerIdleState(this, this.stateMachine);
         this.runState = new PlayerRunState(this, this.stateMachine);
+        this.jumpState = new PlayerJumpState(this, this.stateMachine);
+        this.fallState = new PlayerFallState(this, this.stateMachine);
         this.dashState = new PlayerDashState(this, this.stateMachine);
 
         this.stateMachine.init(this.idleState);//初始化状态机
@@ -37,7 +42,15 @@ class Player {
             {"Run":
                 {startPos:{x:0, y:1},
                  endPos:{x:1, y:2},
-                 anchor:{x:0.4, y:1}}},            
+                 anchor:{x:0.4, y:1}}}, 
+            {"Jump":
+                {startPos:{x:5, y:6},
+                 endPos:{x:2, y:7},
+                 anchor:{x:0.4, y:1}}},    
+            {"Fall":
+                {startPos:{x:3, y:7},
+                 endPos:{x:0, y:8},
+                 anchor:{x:0.4, y:1}}},       
             {"Dash":
                 {startPos:{x:3, y:11},
                  endPos:{x:0, y:12},
@@ -75,7 +88,7 @@ class Player {
     }
 
     onGround(){
-        return this.y >= this.game.height - this.height - this.game.groundMargin;
+        return this.globalPosition.y >= this.game.height - 44 - this.game.groundMargin;
     }
 
     // 下面的函数由状态机中的状态执行update时调用
@@ -83,14 +96,13 @@ class Player {
         this.velocity = velocity;
         if ((velocity.x > 0 && this.facingRight === false) || (velocity.x < 0 && this.facingRight === true)){
             this.facingRight = !this.facingRight;
-        }
-            
+        }          
     }
 
     update(deltaTime){
         this.stateMachine.update(deltaTime);//状态机更新
         this.globalPosition.addEqual(this.velocity);//全局坐标更新
-        console.log("player:",this.globalPosition);
+        // console.log("player:",this.globalPosition);
         const spriteFrames = this.sprites.get(this.animationPlayer.currentAnim.name);
         spriteFrames.forEach(sprite =>{
             sprite.facingRight = this.facingRight;

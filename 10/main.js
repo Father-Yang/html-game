@@ -15,8 +15,8 @@ window.addEventListener('load', function(){
 
             this.speed = 0;
             this.maxSpeed = 3;
-            this.gravity = 1; // 游戏重力
-            this.groundMargin = 80;
+            this.gravity = 10; // 游戏重力
+            this.groundMargin = 20;
             
             this.player = new Player(this);   
       

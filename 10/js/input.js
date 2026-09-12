@@ -67,8 +67,8 @@ class InputManager {
         return this.#keyReleased.has(code);
     }
 
-    getVector(){
-        return new Vector2((this.isKeyDown("a") ? -1 : 0) + (this.isKeyDown("d") ? 1 : 0) ,0);
+    getAxis(){
+        return (this.isKeyDown("a") ? -1 : 0) + (this.isKeyDown("d") ? 1 : 0);
     }
 
     // isMouseDown() { return this.#mouseDown; }

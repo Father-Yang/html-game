@@ -16,6 +16,7 @@ class Sprite{
         context.translate(this.globalPosition.x, this.globalPosition.y);
         // X轴缩放-1，镜像
         context.scale(this.facingRight?1:-1, 1);
+        //TODO 改成旋转方式？？？？？？？？
         // console.log(this.globalPosition);
         context.drawImage(this.image, 
             this.frameCoord.x , this.frameCoord.y, this.size.x, this.size.y, 
@@ -93,7 +94,12 @@ class AnimationPlayer {
     }
     initAnimations(sprites){
         sprites.forEach((frameList, animName) => {
-            this.#addAnimation(animName, new Animation(animName, frameList));
+            const anim = new Animation(animName, frameList);
+            if(animName === "Jump" || animName === "Fall"){
+                anim.loop = false;
+            }
+            anim.duration = 1 / frameList.length * 0.5;
+            this.#addAnimation(animName, anim);
         });
     }
     #addAnimation(name, animObj) {
@@ -103,6 +109,8 @@ class AnimationPlayer {
     play(name) {
         const anim = this.animations.get(name);
         if (!anim) return;
+        if (this.currentAnim)
+            this.currentAnim.currentFrame = 0;//如果是切换动画将前一个动画帧初始0
         this.currentAnim = anim;
         this.currentAnim.play();
     }
