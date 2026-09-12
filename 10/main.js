@@ -17,17 +17,21 @@ window.addEventListener('load', function(){
             this.maxSpeed = 3;
             this.gravity = 10; // 游戏重力
             this.groundMargin = 20;
+
             
+            this.parallax = new ParallaxBackground(this);
             this.player = new Player(this);  
             this.camera = new Camera(this);
             this.camera.follow(this.player);
       
         }
         update(deltaTime){
+            this.parallax.update(deltaTime);
             this.camera.update(deltaTime);
             this.player.update(deltaTime);
         }
         draw(context){
+            this.parallax.draw(context);
             context.save();
             this.camera.draw(context);
             this.player.draw(context);
