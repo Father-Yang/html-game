@@ -28,7 +28,7 @@ class State{
     }
     update(deltaTime){
         //console.log(this.stateName + ":update");  
-        if(Input.isKeyDown("q")) {
+        if(Input.isKeyDown("KeyQ")) {
             this.stateMachine.change(this.player.dashState);
         }
     }
@@ -46,7 +46,7 @@ class PlayerGroundState extends State{
     }
     update(deltaTime){
         super.update(deltaTime);  
-        if(Input.isKeyDown(" ")){
+        if(Input.isKeyDown("Space")){
             this.stateMachine.change(this.player.jumpState);
         }
     }

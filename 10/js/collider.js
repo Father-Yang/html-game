@@ -1,9 +1,9 @@
 class CapsuleCollider {
     constructor(globalPosition, colliderSize, owner = null) {
-        this.x = globalPosition.x;       // 胶囊左下角 x
-        this.y = globalPosition.y;       // 胶囊左下角 y
-        this.w = colliderSize.x;       // 宽度
-        this.h = colliderSize.y;       // 总高度
+        this.x = globalPosition.x;        
+        this.y = globalPosition.y;        
+        this.w = colliderSize.x;        
+        this.h = colliderSize.y;        
         this.radius = this.w / 2;
         this.owner = owner;
     }
@@ -14,7 +14,7 @@ class CapsuleCollider {
     }
 
     // 胶囊中心轴的线段
-    getSegment() {
+    #getSegment() {
         const r = this.radius;
         return {
             ax: this.x + r,
@@ -25,7 +25,7 @@ class CapsuleCollider {
     }
 
     // 点到线段的最近点
-    closestPointOnSegment(px, py, seg) {
+    #closestPointOnSegment(px, py, seg) {
         const dx = seg.bx - seg.ax;
         const dy = seg.by - seg.ay;
         const lenSq = dx * dx + dy * dy;
@@ -43,8 +43,8 @@ class CapsuleCollider {
 
     // 胶囊 vs 矩形（AABB）
     intersectsRect(rect) {
-        const seg = this.getSegment();
-        const closest = this.closestPointOnSegment(
+        const seg = this.#getSegment();
+        const closest = this.#closestPointOnSegment(
             Math.max(rect.x, Math.min(seg.ax, rect.x + rect.w)),
             Math.max(rect.y, Math.min(seg.ay, rect.y + rect.h)),
             seg
@@ -61,35 +61,6 @@ class CapsuleCollider {
         return (ddx * ddx + ddy * ddy) <= (this.radius * this.radius);
     }
 
-    // 胶囊 vs 胶囊
-    intersectsCapsule(other) {
-        const segA = this.getSegment();
-        const segB = other.getSegment();
-
-        // 两线段最近点
-        const closestA = this.closestPointOnSegment(
-            segB.ax, segB.ay, segA
-        );
-        const closestB = other.closestPointOnSegment(
-            segA.ax, segA.ay, segB
-        );
-
-        const dx = closestA.x - closestB.x;
-        const dy = closestA.y - closestB.y;
-        const distSq = dx * dx + dy * dy;
-        const radSum = this.radius + other.radius;
-
-        return distSq <= radSum * radSum;
-    }
-
-    // 胶囊 vs 点
-    intersectsPoint(px, py) {
-        const seg = this.getSegment();
-        const closest = this.closestPointOnSegment(px, py, seg);
-        const dx = px - closest.x;
-        const dy = py - closest.y;
-        return (dx * dx + dy * dy) <= (this.radius * this.radius);
-    }
 
     // 获取穿透信息（用于碰撞响应）
     getOverlap(other) {
@@ -103,14 +74,14 @@ class CapsuleCollider {
     }
 
     getOverlapRect(rect) {
-        const seg = this.getSegment();
+        const seg = this.#getSegment();
 
         // 矩形最近点
         const cx = Math.max(rect.x, Math.min(seg.ax, rect.x + rect.w));
         const cy = Math.max(rect.y, Math.min(seg.ay, rect.y + rect.h));
 
         // 线段到矩形最近点
-        const closest = this.closestPointOnSegment(cx, cy, seg);
+        const closest = this.#closestPointOnSegment(cx, cy, seg);
 
         const dx = closest.x - cx;
         const dy = closest.y - cy;
@@ -132,10 +103,10 @@ class CapsuleCollider {
     }
 
     getOverlapCapsule(other) {
-        const segA = this.getSegment();
+        const segA = this.#getSegment();
         const segB = other.getSegment();
 
-        const closestA = this.closestPointOnSegment(segB.ax, segB.ay, segA);
+        const closestA = this.#closestPointOnSegment(segB.ax, segB.ay, segA);
         const closestB = other.closestPointOnSegment(segA.ax, segA.ay, segB);
 
         const dx = closestA.x - closestB.x;
@@ -155,6 +126,37 @@ class CapsuleCollider {
             depth: this.radius + other.radius - dist
         };
     }
+
+    
+    // // 胶囊 vs 胶囊
+    // intersectsCapsule(other) {
+    //     const segA = this.#getSegment();
+    //     const segB = other.getSegment();
+
+    //     // 两线段最近点
+    //     const closestA = this.#closestPointOnSegment(
+    //         segB.ax, segB.ay, segA
+    //     );
+    //     const closestB = other.closestPointOnSegment(
+    //         segA.ax, segA.ay, segB
+    //     );
+
+    //     const dx = closestA.x - closestB.x;
+    //     const dy = closestA.y - closestB.y;
+    //     const distSq = dx * dx + dy * dy;
+    //     const radSum = this.radius + other.radius;
+
+    //     return distSq <= radSum * radSum;
+    // }
+
+    // // 胶囊 vs 点
+    // intersectsPoint(px, py) {
+    //     const seg = this.#getSegment();
+    //     const closest = this.#closestPointOnSegment(px, py, seg);
+    //     const dx = px - closest.x;
+    //     const dy = py - closest.y;
+    //     return (dx * dx + dy * dy) <= (this.radius * this.radius);
+    // }
 
     // 调试绘制
     draw(context) {

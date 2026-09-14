@@ -1,7 +1,9 @@
-* {
-    margin:0;
-    padding:0;
-    box-sizing: border-box;
+html, body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0,0,0,0.7);
 }
 
 #canvas1 {
@@ -15,6 +17,6 @@
     max-height: 100%;
 }
 
-#player, #layer1, #layer2 {
+#player, #layer1, #layer2, #tiles {
     display: none;
 }

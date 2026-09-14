@@ -26,14 +26,16 @@ class Sprite{
             this.size.y * this.scale
         );
         if(debug){
+            context.strokeStyle = 'rgba(255, 255, 0, 0.5)';   
             context.strokeRect(
                 -this.anchor.x, 
                 -this.anchor.y,
                 this.size.x * this.scale,
                 this.size.y * this.scale);
-            context.fillStyle = 'red'; // 或你要的颜色
+             
+            context.fillStyle = 'rgba(255, 0, 0, 1)'; 
             context.beginPath();
-            context.arc(0, 0, 2, 0, Math.PI * 2); // 半径3像素
+            context.arc(0, 0, 2, 0, Math.PI * 2); //圆点x, 圆点y， 半径r，开始角度，结束角度
             context.fill();
         }
         context.restore();

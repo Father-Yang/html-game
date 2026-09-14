@@ -2,8 +2,8 @@ window.addEventListener('load', function(){
     const canvas = document.getElementById('canvas1');
     const ctx = canvas.getContext('2d');
 
-    canvas.width = 640;
-    canvas.height = 360;
+    canvas.width = 640; //32 * 20 = 640
+    canvas.height = 360;//32 * 12 = 384
 
     debug = true;
 
@@ -17,25 +17,44 @@ window.addEventListener('load', function(){
             this.maxSpeed = 3;
             this.gravity = 10; // 游戏重力
             this.groundMargin = 20;
-
-            
-            this.parallax = new ParallaxBackground(this);
-            this.player = new Player(this);  
+            this.player = new Player(this); 
             this.camera = new Camera(this);
-            this.camera.follow(this.player);
-      
+            this.camera.follow(this.player);//设置摄像机跟随目标
+            this.parallax = new ParallaxBackground(this.camera); //视差背景
+            this.tilemap = new TileMap(this);
+             
         }
         update(deltaTime){
+            if(Input.isKeyDown("Enter")){
+                debug = !debug;
+            }
             this.parallax.update(deltaTime);
             this.camera.update(deltaTime);
             this.player.update(deltaTime);
+            Input.endFrame();//物理帧结束清除输入
         }
         draw(context){
-            this.parallax.draw(context);
-            context.save();
-            this.camera.draw(context);
-            this.player.draw(context);
+
+            context.save();          
+            this.camera.apply(context); //应用摄像机
+            this.parallax.draw(context);//视差背景
+            // this.tilemap.draw(context);
+            this.player.draw(context);//角色  
+
+            if(debug){
+                //绘制摄像机死区
+                context.strokeStyle = 'rgba(255, 0, 0, 0.5)';
+                context.lineWidth = 1;
+                context.setLineDash([5, 5]); // 虚线
+                context.strokeRect(
+                    this.camera.globalPosition.x + this.camera.leftLimit,
+                    this.camera.globalPosition.y + this.camera.topLimit,
+                    this.camera.rightLimit - this.camera.leftLimit,
+                    this.camera.bottomLimit - this.camera.topLimit
+                );
+            }
             context.restore();
+                        
         }
         // 自动适配屏幕大小
         autoScale(){

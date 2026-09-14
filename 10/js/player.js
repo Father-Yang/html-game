@@ -6,19 +6,21 @@ class Player {
 
         this.velocity = new Vector2(0, 0); //角色速度向量
         this.moveSpeed = 200;//角色x轴移动速度
-        this.jumpSpeed = 10;//角色跳跃速度
-        this.game.gravity = 12; // 游戏重力
+        this.jumpSpeed = 6;//角色跳跃速度
+        this.game.gravity = 10; // 游戏重力
         this.inAirMoveMultiplier = 0.7;//角色离地在空中的时候，水平移动速度会乘上这个系数
 
         this.facingRight = true; //角色是否朝右
 
-        this.scale = 1.5;//图片缩放倍数
+        this.scale = 2;//图片缩放倍数
         
         this.size = new Vector2(69,44); //单帧图片大小
         this.anchor = new Vector2(0.4, 1).mul(this.scale).mul(this.size);//锚点位置
-        this.colliderSize = new Vector2(26, 48);//碰撞体大小
+        this.colliderSize = new Vector2(26, 64);//碰撞体大小
 
-        this.globalPosition = new Vector2(100, 300); //角色全局坐标
+        this.globalPosition = new Vector2(100, 320); //角色全局坐标
+
+        this.onGroundFlag = false;
 
         this.sprites = new Map(); // 角色精灵图集
         this.#initSprites("player"); 
@@ -36,7 +38,9 @@ class Player {
         this.stateMachine.init(this.idleState);//初始化状态机
 
         //设置碰撞体
-        this.collider = new CapsuleCollider(this.globalPosition,this.colliderSize,this);
+        this.collider = new CapsuleCollider(
+            this.globalPosition.sub(this.colliderSize.x * 0.5, this.colliderSize.y),
+            this.colliderSize,this);
 
     }
 
@@ -92,7 +96,7 @@ class Player {
     }
 
     onGround(){
-        return this.globalPosition.y >= this.game.height - 44 - this.game.groundMargin;
+        return this.globalPosition.y >= 320;
     }
 
     // 下面的函数由状态机中的状态执行update时调用
@@ -103,11 +107,63 @@ class Player {
         }          
     }
 
+    resolveCollision(deltaTime) {
+        const map = this.game.tilemap;
+        this.onGroundFlag = false;
+
+        // ─── X 轴 ───
+        this.globalPosition.x += this.velocity.x * deltaTime;
+        this.collider.setPosition(
+            this.globalPosition.x - this.colliderSize.x * 0.5,
+            this.globalPosition.y - this.colliderSize.y
+        );
+
+        const solidTilesX = map.getSolidTilesInRect(this.collider);
+        for (const tile of solidTilesX) {
+            const overlap = this.collider.getOverlap(tile.collider);
+            if (!overlap) continue;
+
+            this.globalPosition.x += overlap.nx * overlap.depth;
+            this.velocity.x = 0;
+        }
+
+        // ─── Y 轴 ───
+        this.globalPosition.y += this.velocity.y * deltaTime;
+        this.collider.setPosition(
+            this.globalPosition.x - this.colliderSize.x * 0.5,
+            this.globalPosition.y - this.colliderSize.y
+        );
+
+        const solidTilesY = map.getSolidTilesInRect(this.collider);
+        for (const tile of solidTilesY) {
+            const overlap = this.collider.getOverlap(tile.collider);
+            if (!overlap) continue;
+
+            this.globalPosition.y += overlap.ny * overlap.depth;
+
+            // ny < 0 表示 tile 在 player 下方 → 踩在地面上
+            if (overlap.ny < 0) {
+                this.onGroundFlag = true;
+                this.velocity.y = 0;
+            } else if (overlap.ny > 0) {
+                // 头顶撞到
+                this.velocity.y = 0;
+            }
+        }
+
+        // ─── 最终同步 ───
+        this.collider.setPosition(
+            this.globalPosition.x - this.colliderSize.x * 0.5,
+            this.globalPosition.y - this.colliderSize.y
+        );
+    }
+
     update(deltaTime){
         this.stateMachine.update(deltaTime);//状态机更新
         this.globalPosition.addEqual(this.velocity);//全局坐标更新
         // console.log("player:",this.globalPosition);
         this.collider.setPosition(this.globalPosition.sub(this.colliderSize.x * 0.5, this.colliderSize.y));
+        // this.resolveCollision(deltaTime);
 
         const spriteFrames = this.sprites.get(this.animationPlayer.currentAnim.name);
         spriteFrames.forEach(sprite =>{
