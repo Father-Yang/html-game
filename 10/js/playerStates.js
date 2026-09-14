@@ -1,6 +1,7 @@
 //状态机
 class StateMachine{
-    constructor(){
+    constructor(player){
+        this.player = player;
         this.currentState;
     }
     init(state){
@@ -12,34 +13,53 @@ class StateMachine{
         this.currentState = state;
         this.currentState.enter();
     }
-    update(deltaTime){
+    update(deltaTime){  
         this.currentState.update(deltaTime);
     }
 }
-//状态
+
+//状态基类
 class State{
-    constructor(player, stateMachine, stateName){
-        this.player = player;
+    constructor(stateMachine, stateName){   
         this.stateMachine = stateMachine;
+        this.player = stateMachine.player;
         this.stateName = stateName;
+
+        this.triggerCalled = false;//触发器状态
     }
     enter(){
-        //console.log(this.stateName + ":enter");  
+        console.log(this.stateName + ":enter");  
     }
     update(deltaTime){
-        //console.log(this.stateName + ":update");  
-        if(Input.isKeyDown("KeyQ")) {
+        console.log(this.stateName + ":update");  
+        if(Input.isKeyDown("ShiftLeft") && this.canDash()) {
             this.stateMachine.change(this.player.dashState);
         }
     }
+
     exit(){
-        //console.log(this.stateName + ":exit");  
+        console.log(this.stateName + ":exit");
+        this.triggerCalled = false  
+    }
+
+    callAnimationTrigger(){
+        this.triggerCalled = true;
+    }
+
+    canDash(){
+        // if (this.player.wallDetected)
+        //     return false;
+
+        if (this.stateMachine.currentState == this.player.dashState)
+            return false;
+        return true;
     }
 }   
 
+//地面状态
 class PlayerGroundState extends State{
-    constructor(player, stateMachine){
-        super(player, stateMachine, "Ground");
+    constructor(stateMachine){
+        super(stateMachine, "Ground");
     }
     enter(){    
         super.enter();
@@ -49,16 +69,19 @@ class PlayerGroundState extends State{
         if(Input.isKeyDown("Space")){
             this.stateMachine.change(this.player.jumpState);
         }
+        if(Input.isMouseDown()){
+            this.stateMachine.change(this.player.basicAttackState);
+        }
     }
     exit(){
         super.exit();
     }
 }
 
-
+//空中状态
 class PlayerAiredState extends State{
-    constructor(player, stateMachine){
-        super(player, stateMachine, "Air");
+    constructor(stateMachine){
+        super(stateMachine, "Air");
     }
     enter(){    
         super.enter();
@@ -80,9 +103,80 @@ class PlayerAiredState extends State{
     }
 }
 
+//攻击基类
+class PlayerBasicAttackState extends State{
+
+    #attackVelocityTimer = 0;//攻击计时器
+    #comboIndex = 1;//攻击动画索引
+    #combolimit = 3;//最大连击数
+    #lastTimeAttack = 0;//上次连击的时间
+
+    #comboAttackQueued = false;
+    #attackDir = 1;//攻击方向
+
+    constructor(stateMachine){
+        super(stateMachine, "BasicAttack");
+        if(this.#combolimit !== this.player.attackVelocity.length){
+            this.#combolimit = this.player.attackVelocity.length;//数据安全检查
+        }
+    }
+    enter(){    
+        super.enter();
+        this.#comboAttackQueued = false;
+        //连击技能索引
+        if(this.#comboIndex > this.#combolimit 
+            || (this.#lastTimeAttack + this.player.comboResetTime * 1000) < performance.now()){//上次退出的时间+间隔时间小于现在时间
+            this.#comboIndex = 1;
+        } 
+
+        //根据控制按键更新攻击方向
+        this.#attackDir = (Input.getAxis() !== 0)?Input.getAxis():this.player.facingDir;
+
+        //设置攻击初始速度向量
+        this.player.setVelocity(
+            new Vector2(this.player.attackVelocity[this.#comboIndex - 1].x * this.#attackDir, 
+                0));
+        //初始攻击速度保持时间   
+        this.#attackVelocityTimer = this.player.attackVelocityDuration;
+
+        this.player.animationPlayer.play("Attack_" + this.#comboIndex);
+    }
+    update(deltaTime){
+        super.update(deltaTime);
+        this.player.animationPlayer.update(deltaTime);
+
+        //初始攻击持续时间结束 水平速度设置为0
+        this.#attackVelocityTimer -= deltaTime;
+        if(this.#attackVelocityTimer < 0)
+            this.player.setVelocity(new Vector2(0, this.player.velocity.y));
+
+        //根据攻击键和是否最后一次连招 判断设置连击 最后一次连击后一定会进入到idle状态
+        if(Input.isMouseDown() && (this.#comboIndex < this.#combolimit)){
+            this.#comboAttackQueued = true;
+        }   
+        if(this.triggerCalled){//动画结束触发
+            if(this.#comboAttackQueued){
+                //TODO ？？？？？？？？？？？？？？？？？？？？？？？？？？？
+                //设置当前动画帧false
+                //设置延时进入下一帧切换状态
+                this.stateMachine.change(this.player.basicAttackState);
+            }
+            else{
+                this.stateMachine.change(this.player.idleState);
+            }   
+        }
+    }
+    exit(){
+        super.exit();
+        this.#comboIndex ++; //退出的时候索引递增
+        this.#lastTimeAttack = performance.now();
+    }
+}
+
+//空闲状态 继承 地面状态
 class PlayerIdleState extends PlayerGroundState{
-    constructor(player, stateMachine){
-        super(player, stateMachine, "Idle");
+    constructor(stateMachine){
+        super(stateMachine, "Idle");
     }
     enter(){    
         super.enter();
@@ -102,9 +196,10 @@ class PlayerIdleState extends PlayerGroundState{
 
 }
 
+//奔跑状态 继承 地面状态
 class PlayerRunState extends PlayerGroundState{
-    constructor(player, stateMachine){
-        super(player, stateMachine, "Run");
+    constructor(stateMachine){
+        super(stateMachine, "Run");
     }
     enter(){    
         super.enter();
@@ -126,9 +221,10 @@ class PlayerRunState extends PlayerGroundState{
     }
 }
 
+//跳跃状态 继承 空中状态
 class PlayerJumpState extends PlayerAiredState{
-    constructor(player, stateMachine){
-        super(player, stateMachine, "Jump");
+    constructor(stateMachine){
+        super(stateMachine, "Jump");
     }
     enter(){    
         super.enter();
@@ -149,10 +245,10 @@ class PlayerJumpState extends PlayerAiredState{
     }
 }
 
-
+//下落状态 继承 空中状态
 class PlayerFallState extends PlayerAiredState{
-    constructor(player, stateMachine){
-        super(player, stateMachine, "Fall");
+    constructor(stateMachine){
+        super(stateMachine, "Fall");
     }
     enter(){    
         super.enter();
@@ -172,26 +268,52 @@ class PlayerFallState extends PlayerAiredState{
     }
 }
 
+//冲刺状态 继承 状态基类TODO
 class PlayerDashState extends State{
-    constructor(player, stateMachine){
-        super(player, stateMachine, "Dash");
+    #dashDir = 1;
+    #stateTimer = 1;
+    constructor(stateMachine){
+        super(stateMachine, "Dash");
     }
     enter(){    
         super.enter();
-        this.stateTimer = 0.5;
+        this.stateTimer = this.player.dashDuration;
+        //根据控制按键更新冲刺方向
+        this.#dashDir = (Input.getAxis() !== 0)?Input.getAxis():this.player.facingDir;
         this.player.animationPlayer.play("Dash");
     }
     update(deltaTime){
         super.update(deltaTime);
         this.player.animationPlayer.update(deltaTime);
+
+        this.player.setVelocity(new Vector2(this.player.dashSpeed * this.#dashDir * deltaTime, 0));
+
         this.stateTimer -= deltaTime;
-        if(this.stateTimer <= 0){
-            this.stateMachine.change(this.player.idleState);
+        if(this.stateTimer < 0){
+            if(this.player.onGround()){
+                this.stateMachine.change(this.player.idleState);
+            }
+            else{
+                this.stateMachine.change(this.player.fallState);   
+            }
         }
     }
     exit(){
         super.exit();
-        this.stateTimer = 0.5;
+        this.stateTimer = this.player.dashDuration;
+        this.player.setVelocity(new Vector2(0, 0));
     }
+
+    // TODO
+    //  private void CancelDashIfNeeded()
+    // {
+    //     if (player.wallDetected)
+    //     {
+    //         if (player.groundDetected)
+    //             stateMachine.ChangeState(player.idleState);
+    //         else
+    //             stateMachine.ChangeState(player.wallSlideState);
+    //     }
+    // }
 
 }

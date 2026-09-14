@@ -81,7 +81,12 @@ class Animation {
         if(this.timer >= this.duration){
             // console.log(this.timer, "---", this.duration);
             if(this.currentFrame >= (this.frameList.length-1)){
-                if(this.loop) this.currentFrame = 0;
+                if(this.loop) {//循环播放动画
+                    this.currentFrame = 0;
+                }
+                else if(this.onComplete) {//动画不循环且需要回调
+                    this.onComplete();
+                }   
             }
             else{
                 this.currentFrame ++;
@@ -103,12 +108,20 @@ class AnimationPlayer {
     constructor() {
         this.animations = new Map();
         this.currentAnim = null;
+        this.entity = null;
     }
-    initAnimations(sprites){
-        sprites.forEach((frameList, animName) => {
+    initAnimations(entity){
+        this.entity = entity;
+        this.entity.sprites.forEach((frameList, animName) => {
             const anim = new Animation(animName, frameList);
-            if(animName === "Jump" || animName === "Fall"){
+            //TODO 设置动画循环状态
+            if(animName === "Jump" || animName === "Fall" || animName.includes("Attack")){
                 anim.loop = false;
+            }
+            if(animName.includes("Attack")){
+                anim.onComplete = () => {
+                    this.entity.callAnimationTrigger();
+                };
             }
             anim.duration = 1 / frameList.length * 0.5;
             this.#addAnimation(animName, anim);

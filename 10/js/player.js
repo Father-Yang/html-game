@@ -2,15 +2,22 @@ class Player {
     constructor(game){
         this.game = game;
         this.animationPlayer = new AnimationPlayer();
-        this.stateMachine = new StateMachine();
+        this.stateMachine = new StateMachine(this);
 
         this.velocity = new Vector2(0, 0); //角色速度向量
         this.moveSpeed = 200;//角色x轴移动速度
         this.jumpSpeed = 6;//角色跳跃速度
         this.game.gravity = 10; // 游戏重力
         this.inAirMoveMultiplier = 0.7;//角色离地在空中的时候，水平移动速度会乘上这个系数
+        this.attackVelocity = [new Vector2(3, 1.5), new Vector2(1, 2.5), new Vector2(5, 1.75)];//角色攻击速度向量
+        this.attackVelocityDuration = 0.1;//角色攻击初速度持续时间
+        this.comboResetTime = 1;//角色连击重置时间
+
+        this.dashDuration = 0.1; //冲刺时间
+        this.dashSpeed = 600;//冲刺速度
 
         this.facingRight = true; //角色是否朝右
+        this.facingDir = 1;
 
         this.scale = 2;//图片缩放倍数
         
@@ -29,11 +36,12 @@ class Player {
         // console.log(this.animationPlayer);
 
         //角色状态
-        this.idleState = new PlayerIdleState(this, this.stateMachine);
-        this.runState = new PlayerRunState(this, this.stateMachine);
-        this.jumpState = new PlayerJumpState(this, this.stateMachine);
-        this.fallState = new PlayerFallState(this, this.stateMachine);
-        this.dashState = new PlayerDashState(this, this.stateMachine);
+        this.idleState = new PlayerIdleState(this.stateMachine);
+        this.runState = new PlayerRunState(this.stateMachine);
+        this.jumpState = new PlayerJumpState(this.stateMachine);
+        this.fallState = new PlayerFallState(this.stateMachine);
+        this.dashState = new PlayerDashState(this.stateMachine);
+        this.basicAttackState = new PlayerBasicAttackState(this.stateMachine);
 
         this.stateMachine.init(this.idleState);//初始化状态机
 
@@ -62,6 +70,15 @@ class Player {
             {"Dash":
                 {startPos:{x:3, y:11},
                  endPos:{x:0, y:12}}},
+            {"Attack_1":
+                {startPos:{x:2, y:2},
+                 endPos:{x:3, y:3}}},
+            {"Attack_2":
+                {startPos:{x:4, y:3},
+                 endPos:{x:1, y:4}}},
+            {"Attack_3":
+                {startPos:{x:5, y:12},
+                 endPos:{x:5, y:13}}}
         ];
         if(image){
             const hframe = image.width / this.size.x; 
@@ -92,7 +109,7 @@ class Player {
     }
     
     #initAnimation(){
-        this.animationPlayer.initAnimations(this.sprites);
+        this.animationPlayer.initAnimations(this);
     }
 
     onGround(){
@@ -104,6 +121,7 @@ class Player {
         this.velocity = velocity;
         if ((velocity.x > 0 && this.facingRight === false) || (velocity.x < 0 && this.facingRight === true)){
             this.facingRight = !this.facingRight;
+            this.facingDir = this.facingDir * -1;
         }          
     }
 
@@ -156,6 +174,10 @@ class Player {
             this.globalPosition.x - this.colliderSize.x * 0.5,
             this.globalPosition.y - this.colliderSize.y
         );
+    }
+
+    callAnimationTrigger(){
+        this.stateMachine.currentState.callAnimationTrigger();
     }
 
     update(deltaTime){

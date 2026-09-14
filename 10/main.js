@@ -31,6 +31,7 @@ window.addEventListener('load', function(){
             this.parallax.update(deltaTime);
             this.camera.update(deltaTime);
             this.player.update(deltaTime);
+            
             Input.endFrame();//物理帧结束清除输入
         }
         draw(context){
