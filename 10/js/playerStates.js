@@ -25,13 +25,20 @@ class State{
         this.player = stateMachine.player;
         this.stateName = stateName;
 
-        this.triggerCalled = false;//触发器状态
+        this.triggerCalled = false;//动画触发器状态
+        this.dashCooldownTimer = this.player.dashCooldown;//冲刺冷却计数器
     }
     enter(){
         console.log(this.stateName + ":enter");  
     }
     update(deltaTime){
-        console.log(this.stateName + ":update");  
+        console.log(this.stateName + ":update"); 
+
+        this.dashCooldownTimer -=  deltaTime;
+        if(this.dashCooldownTimer < 0){//重置冲刺冷却 TODO 冲刺感觉卡手
+            this.dashCooldownTimer = this.player.dashCooldown;
+        }
+
         if(Input.isKeyDown("ShiftLeft") && this.canDash()) {
             this.stateMachine.change(this.player.dashState);
         }
@@ -49,7 +56,9 @@ class State{
     canDash(){
         // if (this.player.wallDetected)
         //     return false;
-
+        if(this.dashCooldownTimer < this.player.dashCooldown){
+            return false;
+        }
         if (this.stateMachine.currentState == this.player.dashState)
             return false;
         return true;
@@ -301,6 +310,7 @@ class PlayerDashState extends State{
     exit(){
         super.exit();
         this.stateTimer = this.player.dashDuration;
+        this.dashCooldownTimer = this.player.dashCooldown;//冲刺冷却计数器
         this.player.setVelocity(new Vector2(0, 0));
     }
 

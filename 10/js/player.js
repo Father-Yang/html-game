@@ -13,8 +13,9 @@ class Player {
         this.attackVelocityDuration = 0.1;//角色攻击初速度持续时间
         this.comboResetTime = 1;//角色连击重置时间
 
-        this.dashDuration = 0.1; //冲刺时间
+        this.dashDuration = 0.5; //冲刺时间
         this.dashSpeed = 600;//冲刺速度
+        this.dashCooldown = 0.5;//冲刺冷却时间
 
         this.facingRight = true; //角色是否朝右
         this.facingDir = 1;
@@ -46,9 +47,13 @@ class Player {
         this.stateMachine.init(this.idleState);//初始化状态机
 
         //设置碰撞体
-        this.collider = new CapsuleCollider(
+        // this.collider = new CapsuleCollider(
+        //     this.globalPosition.sub(this.colliderSize.x * 0.5, this.colliderSize.y),
+        //     this.colliderSize,this);
+        this.collider = new Collider(
             this.globalPosition.sub(this.colliderSize.x * 0.5, this.colliderSize.y),
-            this.colliderSize,this);
+            this.colliderSize, this);
+        this.collider.setType(CollisionType.Player);
 
     }
 
@@ -125,57 +130,7 @@ class Player {
         }          
     }
 
-    resolveCollision(deltaTime) {
-        const map = this.game.tilemap;
-        this.onGroundFlag = false;
-
-        // ─── X 轴 ───
-        this.globalPosition.x += this.velocity.x * deltaTime;
-        this.collider.setPosition(
-            this.globalPosition.x - this.colliderSize.x * 0.5,
-            this.globalPosition.y - this.colliderSize.y
-        );
-
-        const solidTilesX = map.getSolidTilesInRect(this.collider);
-        for (const tile of solidTilesX) {
-            const overlap = this.collider.getOverlap(tile.collider);
-            if (!overlap) continue;
-
-            this.globalPosition.x += overlap.nx * overlap.depth;
-            this.velocity.x = 0;
-        }
-
-        // ─── Y 轴 ───
-        this.globalPosition.y += this.velocity.y * deltaTime;
-        this.collider.setPosition(
-            this.globalPosition.x - this.colliderSize.x * 0.5,
-            this.globalPosition.y - this.colliderSize.y
-        );
-
-        const solidTilesY = map.getSolidTilesInRect(this.collider);
-        for (const tile of solidTilesY) {
-            const overlap = this.collider.getOverlap(tile.collider);
-            if (!overlap) continue;
-
-            this.globalPosition.y += overlap.ny * overlap.depth;
-
-            // ny < 0 表示 tile 在 player 下方 → 踩在地面上
-            if (overlap.ny < 0) {
-                this.onGroundFlag = true;
-                this.velocity.y = 0;
-            } else if (overlap.ny > 0) {
-                // 头顶撞到
-                this.velocity.y = 0;
-            }
-        }
-
-        // ─── 最终同步 ───
-        this.collider.setPosition(
-            this.globalPosition.x - this.colliderSize.x * 0.5,
-            this.globalPosition.y - this.colliderSize.y
-        );
-    }
-
+    //给动画回调使用的函数
     callAnimationTrigger(){
         this.stateMachine.currentState.callAnimationTrigger();
     }
@@ -196,7 +151,8 @@ class Player {
     }
 
     draw(context){
-        this.collider.draw(context);
+        if(debug)
+            this.collider.draw(context);
         // console.log(this.animationPlayer.currentAnim);
         this.animationPlayer.draw(context);
     }

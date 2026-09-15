@@ -1,12 +1,20 @@
+class Ground {
+  constructor(globalPosition, colliderSize) {
+        this.collider = new Collider(globalPosition, colliderSize, this);
+        this.collider.setType(CollisionType.Ground);
+    }
+}
+
 class TileMap {
+    #grounds = [];
+    #walls = [];
     constructor(game) {
         this.game = game;
         //TODO 临时加载地图
         this.image = document.getElementById("tiles");
         this.ground_1 = new Vector2(2, 1);
-        this.ground_2 = new Vector2(2, 0);
+        this.ground_2 = new Vector2(8, 1);
         this.ground_3 = new Vector2(6, 1);
-
 
 
         // 格子尺寸
@@ -20,11 +28,11 @@ class TileMap {
             [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
             [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
             [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-            [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-            [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-            [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-            [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
-            [2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2],
+            [2,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,2,2],
+            [2,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,2,2],
+            [2,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,2,2],
+            [2,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,2,2],
+            [2,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,2,2],
             [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
             [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]
         ];
@@ -41,6 +49,23 @@ class TileMap {
 
         // 可行走标记（哪些格子算 solid）
         this.solidTiles = { 1: true, 2: true, 3: true };
+
+        this.initPhysics(); //TODO
+    }
+
+    initPhysics(){
+        for (let row = 0; row < this.rows; row++) {
+            for (let col = 0; col < this.cols; col++) {
+                const tile = this.grid[row][col];
+                if (tile === 0) continue;
+
+                const x = col * this.tileW;
+                const y = row * this.tileH;
+                if((tile === 1))
+                    this.#grounds.push(new Ground(new Vector2(x, y), new Vector2(32, 32)));
+            }
+        }
+        
     }
 
     // ─── 坐标转换 ───
@@ -105,29 +130,35 @@ class TileMap {
     draw(context) {
         for (let row = 0; row < this.rows; row++) {
             for (let col = 0; col < this.cols; col++) {
-                const tile = this.grid[row][col];
-                if (tile === 0) continue;
-
                 const x = col * this.tileW;
                 const y = row * this.tileH;
-
+                if (debug) {
+                    context.strokeStyle = 'rgba(255,255,255,0.1)';
+                    context.strokeRect(
+                        x - this.game.camera.globalPosition.x, 
+                        y - this.game.camera.globalPosition.y, 
+                        this.tileW, this.tileH);
+                }
+                const tile = this.grid[row][col];
+                if (tile === 0) continue;
                 if(tile === 1)
                     context.drawImage(this.image, 
                         this.ground_1.x * 32,this.ground_1.y * 32, 32, 32,
-                        x, y, 32, 32
+                        x - this.game.camera.globalPosition.x,
+                        y - this.game.camera.globalPosition.y, 
+                        32, 32
                     );
                 if(tile === 2)
                     context.drawImage(this.image, 
                         this.ground_2.x * 32,this.ground_2.y * 32, 32, 32,
-                        x, y, 32, 32
+                        x - this.game.camera.globalPosition.x,
+                        y - this.game.camera.globalPosition.y, 
+                        32, 32
                     );
                 // context.fillStyle = this.tileColors[tile] || '#999';
                 // context.fillRect(x, y, this.tileW, this.tileH);
 
-                if (debug) {
-                    context.strokeStyle = 'rgba(255,255,255,0.7)';
-                    context.strokeRect(x, y, this.tileW, this.tileH);
-                }
+
             }
         }
     }

@@ -13,10 +13,9 @@ window.addEventListener('load', function(){
             this.width = width;
             this.height = height;
 
-            this.speed = 0;
-            this.maxSpeed = 3;
             this.gravity = 10; // 游戏重力
             this.groundMargin = 20;
+            this.physicsSystem = new PhysicsSystem();
             this.player = new Player(this); 
             this.camera = new Camera(this);
             this.camera.follow(this.player);//设置摄像机跟随目标
@@ -28,18 +27,18 @@ window.addEventListener('load', function(){
             if(Input.isKeyDown("Enter")){
                 debug = !debug;
             }
+            this.physicsSystem.update(deltaTime);
             this.parallax.update(deltaTime);
             this.camera.update(deltaTime);
             this.player.update(deltaTime);
-            
+
             Input.endFrame();//物理帧结束清除输入
         }
         draw(context){
-
-            context.save();          
             this.camera.apply(context); //应用摄像机
+
             this.parallax.draw(context);//视差背景
-            // this.tilemap.draw(context);
+            this.tilemap.draw(context); //瓦片地图
             this.player.draw(context);//角色  
 
             if(debug){
@@ -54,7 +53,9 @@ window.addEventListener('load', function(){
                     this.camera.bottomLimit - this.camera.topLimit
                 );
             }
-            context.restore();
+
+
+            this.camera.restore(context);
                         
         }
         // 自动适配屏幕大小

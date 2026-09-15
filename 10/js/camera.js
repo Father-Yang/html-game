@@ -1,9 +1,16 @@
 class Camera {
+    // #margin = {
+    //     left: 0.4,   
+    //     right: 0.4,   
+    //     top: 0.2,     
+    //     bottom: 0.3  
+    // };
+
     #margin = {
-        left: 0.3,   
-        right: 0.3,   
-        top: 0.7,     
-        bottom: 0.2   
+        left: 0,   
+        right: 0,   
+        top: 0,     
+        bottom: 0  
     };
 
     constructor(game) {
@@ -21,16 +28,20 @@ class Camera {
 
     follow(target) {
         this.target = target;
-        // 初始位置
-        this.globalPosition = target.globalPosition.sub(new Vector2(this.leftLimit, this.bottomLimit));
+        // // 初始位置
+        // const centerX = this.width / 2;
+        // const centerY = this.height / 2;
+        // this.globalPosition = target.globalPosition.sub(
+        //     new Vector2(centerX, centerY)
+        // );
     }
 
     update(deltaTime) {
         if (!this.target) return;
 
         // 玩家在屏幕上的位置
-        const screenX = this.target.globalPosition.x - this.globalPosition.x;
-        const screenY = this.target.globalPosition.y - this.globalPosition.y;
+        const screenX = this.target.globalPosition.x;
+        const screenY = this.target.globalPosition.y;
 
         if (screenX < this.leftLimit) {
             this.globalPosition.x = this.target.globalPosition.x - this.leftLimit;
@@ -46,6 +57,11 @@ class Camera {
     }
 
     apply(context) {
+        context.save();
         context.translate(-this.globalPosition.x, -this.globalPosition.y);
+    }
+
+    restore(context) {
+        context.restore();
     }
 }
