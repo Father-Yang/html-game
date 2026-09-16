@@ -219,7 +219,6 @@ class PlayerRunState extends PlayerGroundState{
     }
     enter(){    
         super.enter();
-        console.log("enter==",this.player.globalPosition);
         this.player.animationPlayer.play("Run");
     }
     update(deltaTime){
@@ -236,7 +235,6 @@ class PlayerRunState extends PlayerGroundState{
     }
     exit(){
         super.exit();
-        console.log("exit==",this.player.globalPosition);
     }
 }
 
