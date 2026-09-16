@@ -287,7 +287,7 @@ class PlayerFallState extends PlayerAiredState{
     }
 }
 
-//冲刺状态 继承 状态基类TODO
+//冲刺状态 继承 状态基类
 class PlayerDashState extends State{
     #dashDir = 1;
     #stateTimer = 1;
@@ -326,7 +326,6 @@ class PlayerDashState extends State{
         this.player.setVelocity(new Vector2(0, 0));
     }
 
-    TODO
     cancelDashIfNeeded(){
         if (this.player.wallDetected){
             if (this.player.groundDetected)
@@ -352,23 +351,56 @@ class PlayerWallSlideState extends State{
         super.update(deltaTime);
         this.player.animationPlayer.update(deltaTime);
 
-        // if (player.moveInput.y < 0)
-        //     player.SetVelocity(player.moveInput.x, rb.linearVelocity.y);
-        // else
-        //     player.SetVelocity(player.moveInput.x, rb.linearVelocity.y * player.wallSlideSlowMultiplier);
+        if(Input.isKeyDown("Space")){
+            this.stateMachine.change(this.player.wallJumpState);
+            return;
+        }
 
         if (Input.getAxisY() > 0){
             this.player.setVelocity(new Vector2(Input.getAxisX(), this.player.wallSpeed));
         }
         else{
             this.player.setVelocity(new Vector2(Input.getAxisX(), this.player.velocity.y * Math.pow(this.player.wallSlideSlowMultiplier, deltaTime)));
-            // console.log(this.player.velocity)
         }
         if (this.player.wallDetected === false)
             this.stateMachine.change(this.player.fallState);
         if (this.player.groundDetected){       
             this.stateMachine.change(this.player.idleState);
             this.player.flip();
+        }
+    }
+    exit(){
+        super.exit();
+    }
+
+}
+
+//墙壁跳跃状态
+class PlayerWallJumpState extends State{
+    constructor(stateMachine){
+        super(stateMachine, "WallJump");
+    }
+    enter(){    
+        super.enter();
+        this.player.animationPlayer.play("Jump");
+        this.player.setVelocity(new Vector2(this.player.wallJumpSpeed.x * (-this.player.facingDir), -this.player.wallJumpSpeed.y));
+        console.log("PlayerWallJumpState enter:" , this.player.velocity);
+    }
+    update(deltaTime){
+        super.update(deltaTime);
+        this.player.animationPlayer.update(deltaTime);
+
+        // console.log("PlayerWallJumpState update",this.player.velocity);
+
+        this.player.setVelocity(new Vector2(
+            this.player.velocity.x * Math.pow(this.player.inAirMoveMultiplier, deltaTime) , //空中速度横向衰减 
+            this.player.velocity.y + this.player.gravity * deltaTime));
+        
+        if (this.player.velocity.y >= 0){
+            this.stateMachine.change(this.player.fallState);
+        }
+        if (this.player.wallDetected){
+            this.stateMachine.change(this.player.wallSlideState); 
         }
     }
     exit(){

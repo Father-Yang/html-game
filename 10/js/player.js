@@ -15,8 +15,9 @@ class Player {
         this.velocity = new Vector2(0, 0); //角色速度向量
         this.moveSpeed = 250;//角色x轴移动速度
         this.jumpSpeed = 6;//角色跳跃速度
-        this.wallSpeed = 3;//角色下滑速度
+        this.wallSpeed = 4;//角色下滑速度
         this.gravity = game.gravity; // 游戏重力
+        this.wallJumpSpeed = new Vector2(4, 4);//角色墙体跳跃速度
         
         this.attackVelocity = [new Vector2(3, 0.5), new Vector2(0, 0), new Vector2(5, 1)];//角色攻击速度向量
         this.attackVelocityDuration = 0.1;//角色攻击初速度持续时间
@@ -48,6 +49,7 @@ class Player {
         this.dashState = new PlayerDashState(this.stateMachine);
         this.basicAttackState = new PlayerBasicAttackState(this.stateMachine);
         this.wallSlideState = new PlayerWallSlideState(this.stateMachine);
+        this.wallJumpState = new PlayerWallJumpState(this.stateMachine);
 
         this.stateMachine.init(this.idleState);//初始化状态机
 
@@ -115,7 +117,8 @@ class Player {
         this.velocity = velocity;
         if ((velocity.x > 0 && this.facingRight === false) || (velocity.x < 0 && this.facingRight === true)){
             this.flip();
-        }          
+        } 
+        // console.trace("setVelocity:" , velocity);         
     }
 
     flip(){
@@ -161,7 +164,7 @@ class Player {
        
         if(wall_1 && wall_2){
             this.wallDetected = true;
-            this.velocity = new Vector2(0 , this.velocity.y);
+            // this.velocity = new Vector2(0 , this.velocity.y);
             // console.log(this.globalPosition ,  wall_1.x + wall_1.width + w_length)
             if(this.facingDir === 1){
                 this.globalPosition = new Vector2(wall_1.x - w_length, this.globalPosition.y);
