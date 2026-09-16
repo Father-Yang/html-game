@@ -29,8 +29,8 @@ window.addEventListener('load', function(){
             }
             // this.physicsSystem.update(deltaTime); //暂时关掉全局扫描
             this.parallax.update(deltaTime);
-            this.camera.update(deltaTime);
             this.player.update(deltaTime);
+            this.camera.update(deltaTime);
 
             Input.endFrame();//物理帧结束清除输入
         }
@@ -88,7 +88,7 @@ window.addEventListener('load', function(){
         ctx.clearRect(0, 0, canvas.width, canvas.height);
 
         const deltaTime = timeStamp - lastTime;
-
+             
         lastTime = timeStamp;
         timer += deltaTime;
 
@@ -109,7 +109,7 @@ window.addEventListener('load', function(){
 
             ctx.restore();
         }  
- 
+        
         requestAnimationFrame(animate);
     }
     animate(0);

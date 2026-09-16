@@ -1,17 +1,17 @@
 class Camera {
-    // #margin = {
-    //     left: 0.4,   
-    //     right: 0.4,   
-    //     top: 0.2,     
-    //     bottom: 0.3  
-    // };
-
     #margin = {
-        left: 0,   
-        right: 0,   
-        top: 0,     
-        bottom: 0  
+        left: 0.3,   
+        right: 0.3,   
+        top: 0.2,     
+        bottom: 0.2  
     };
+
+    // #margin = {
+    //     left: 0,   
+    //     right: 0,   
+    //     top: 0,     
+    //     bottom: 0  
+    // };
 
     constructor(game) {
         this.globalPosition = new Vector2(0, 0);
@@ -24,6 +24,11 @@ class Camera {
 
         this.width = game.width;
         this.height = game.height;
+
+        this.smoothSpeed = 5; //摄像机平滑移动
+        this.threshold = 1;//摄像机临近阈值
+
+        console.log(this.leftLimit , this.rightLimit, this.topLimit, this.bottomLimit)
     }
 
     follow(target) {
@@ -40,19 +45,46 @@ class Camera {
         if (!this.target) return;
 
         // 玩家在屏幕上的位置
-        const screenX = this.target.globalPosition.x;
-        const screenY = this.target.globalPosition.y;
+        const targetX = this.target.globalPosition.x;
+        const targetY = this.target.globalPosition.y;
 
-        if (screenX < this.leftLimit) {
-            this.globalPosition.x = this.target.globalPosition.x - this.leftLimit;
-        } else if (screenX > this.rightLimit) {
-            this.globalPosition.x = this.target.globalPosition.x - this.rightLimit;
+
+        const diffLeft = (this.globalPosition.x + this.leftLimit) - targetX;
+        const diffRight = targetX - (this.globalPosition.x + this.rightLimit);
+        if (diffLeft > 0) {
+            if (diffLeft <= this.threshold){
+                this.globalPosition.x -= diffLeft;
+            }
+            else{
+                this.globalPosition.x -= diffLeft * this.smoothSpeed * deltaTime;
+            } 
+        } else if (diffRight >= 0) {
+            if (diffRight < this.threshold){
+                this.globalPosition.x += diffRight;
+            }
+            else{
+                this.globalPosition.x += diffRight * this.smoothSpeed * deltaTime;
+            }     
         }
 
-        if (screenY < this.topLimit) {
-            this.globalPosition.y = this.target.globalPosition.y - this.topLimit;
-        } else if (screenY > this.bottomLimit) {
-            this.globalPosition.y = this.target.globalPosition.y - this.bottomLimit;
+
+        const diffTop = (this.globalPosition.y + this.topLimit) - targetY;
+        const diffBottom = targetY - (this.globalPosition.y + this.bottomLimit);
+
+        if (diffTop > 0) {
+            if(diffTop <= this.threshold){
+                this.globalPosition.y -= diffTop;
+            }
+            else{
+                this.globalPosition.y -= diffTop * this.smoothSpeed * deltaTime;
+            }        
+        } else if (diffBottom >= 0) {
+            if(diffBottom < this.threshold){
+                this.globalPosition.y += diffBottom;
+            }
+            else{
+                this.globalPosition.y += diffBottom * this.smoothSpeed * deltaTime;
+            }
         }
     }
 
