@@ -2,8 +2,8 @@ class Camera {
     #margin = {
         left: 0.3,   
         right: 0.3,   
-        top: 0.2,     
-        bottom: 0.1  
+        top: 0.4,     
+        bottom: 0.2  
     };
 
     //TODO 摄像机要预留底部
@@ -21,6 +21,8 @@ class Camera {
 
         this.smoothSpeed = 5; //摄像机平滑移动
         this.threshold = 1;//摄像机临近阈值
+
+        this.offset = new Vector2(0, 30);
 
         // console.log(this.leftLimit , this.rightLimit, this.topLimit, this.bottomLimit)
     }
@@ -85,7 +87,9 @@ class Camera {
 
     apply(context) {
         context.save();
-        context.translate(-this.globalPosition.x, -this.globalPosition.y);
+        // context.translate(-this.globalPosition.x, -this.globalPosition.y);
+         context.translate(-(this.globalPosition.x + this.offset.x),
+                           -(this.globalPosition.y + this.offset.y));
     }
 
     restore(context) {
