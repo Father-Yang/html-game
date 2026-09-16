@@ -30,7 +30,7 @@ window.addEventListener('load', function(){
             // this.physicsSystem.update(deltaTime); //暂时关掉全局扫描
             this.parallax.update(deltaTime);
             this.player.update(deltaTime);
-            this.camera.update(deltaTime);
+            this.camera.update(deltaTime); //必须先更行player再更新摄像机
 
             Input.endFrame();//物理帧结束清除输入
         }
@@ -106,6 +106,7 @@ window.addEventListener('load', function(){
             ctx.fillStyle = "green";
             ctx.fillText("Update:" + (1000 / debug_timer).toFixed(1), 20, 10);
             ctx.fillText("Render:" + (1000 / deltaTime).toFixed(1), 20, 20);
+            ctx.fillText("Camera:("+game.camera.globalPosition.x.toFixed(1) + "," + game.camera.globalPosition.y.toFixed(1) +")", 20, 30);        
 
             ctx.restore();
         }  

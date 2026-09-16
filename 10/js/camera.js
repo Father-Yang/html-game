@@ -3,7 +3,7 @@ class Camera {
         left: 0.3,   
         right: 0.3,   
         top: 0.2,     
-        bottom: 0.2  
+        bottom: 0.1  
     };
 
     // #margin = {
@@ -33,6 +33,7 @@ class Camera {
 
     follow(target) {
         this.target = target;
+
         // // 初始位置
         // const centerX = this.width / 2;
         // const centerY = this.height / 2;

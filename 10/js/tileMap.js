@@ -144,8 +144,8 @@ class TileMap {
                 if (debug) {
                     context.strokeStyle = 'rgba(255,255,255,0.1)';
                     context.strokeRect(
-                        x - this.game.camera.globalPosition.x, 
-                        y - this.game.camera.globalPosition.y, 
+                        x, 
+                        y, 
                         this.tileW, this.tileH);
                 }
                 const tile = this.grid[row][col];
@@ -153,15 +153,15 @@ class TileMap {
                 if(tile === 1)
                     context.drawImage(this.image, 
                         this.ground_1.x * 32,this.ground_1.y * 32, 32, 32,
-                        x - this.game.camera.globalPosition.x,
-                        y - this.game.camera.globalPosition.y, 
+                        x,
+                        y, 
                         32, 32
                     );
                 if(tile === 2)
                     context.drawImage(this.image, 
                         this.ground_2.x * 32,this.ground_2.y * 32, 32, 32,
-                        x - this.game.camera.globalPosition.x,
-                        y - this.game.camera.globalPosition.y, 
+                        x,
+                        y, 
                         32, 32
                     );
                 // context.fillStyle = this.tileColors[tile] || '#999';

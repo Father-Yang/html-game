@@ -8,7 +8,7 @@ class Player {
         this.size = new Vector2(69,44); //单帧图片大小
 
         this.anchor = new Vector2(0.4, 0.6).mul(this.scale).mul(this.size);//锚点相对位置
-        this.initGlobalPosition = new Vector2(100, 40).add(this.anchor);//角色全局初始坐标
+        this.initGlobalPosition = new Vector2(200, 40).add(this.anchor);//角色全局初始坐标
         this.globalPosition = this.initGlobalPosition.clone();//角色全局坐标
         this.fallMaxDistance = 600;//掉落的最大距离
 
@@ -193,12 +193,16 @@ class Player {
         spriteFrames.forEach(sprite =>{
             sprite.facingDir = this.facingDir;
             sprite.globalPosition = this.globalPosition;
-        })    
+        })   
     }
 
     draw(context){
         if(debug){
-            this.collider.draw(context);          
+            this.collider.draw(context); 
+
+            context.font = "10px Segoe UI";
+            context.fillStyle = 'rgba(255, 255, 255, 0.5)'; 
+            context.fillText(("("+this.globalPosition.x.toFixed(1) + "," + this.globalPosition.y.toFixed(1) +")"), this.globalPosition.x + 20, this.globalPosition.y);        
         }
         this.animationPlayer.draw(context);
     }
