@@ -54,8 +54,8 @@ class State{
     }
 
     canDash(){
-        // if (this.player.wallDetected)
-        //     return false;
+        if (this.player.wallDetected) //检测到墙体
+            return false;
         if(this.dashCooldownTimer < this.player.dashCooldown){
             return false;
         }
@@ -305,6 +305,8 @@ class PlayerDashState extends State{
         super.update(deltaTime);
         this.player.animationPlayer.update(deltaTime);
 
+        this.cancelDashIfNeeded();
+
         this.player.setVelocity(new Vector2(this.player.dashSpeed * this.#dashDir * deltaTime, 0));
 
         this.stateTimer -= deltaTime;
@@ -324,21 +326,19 @@ class PlayerDashState extends State{
         this.player.setVelocity(new Vector2(0, 0));
     }
 
-    // TODO
-    //  private void CancelDashIfNeeded()
-    // {
-    //     if (player.wallDetected)
-    //     {
-    //         if (player.groundDetected)
-    //             stateMachine.ChangeState(player.idleState);
-    //         else
-    //             stateMachine.ChangeState(player.wallSlideState);
-    //     }
-    // }
+    TODO
+    cancelDashIfNeeded(){
+        if (this.player.wallDetected){
+            if (this.player.groundDetected)
+                this.stateMachine.change(this.player.idleState);
+            else
+                this.stateMachine.change(this.player.wallSlideState);
+        }
+    }
 
 }
 
-//墙
+//爬墙状态
 class PlayerWallSlideState extends State{
     constructor(stateMachine){
         super(stateMachine, "Wall");

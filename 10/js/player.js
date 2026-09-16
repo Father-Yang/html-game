@@ -13,7 +13,7 @@ class Player {
         this.fallMaxDistance = 600;//掉落的最大距离
 
         this.velocity = new Vector2(0, 0); //角色速度向量
-        this.moveSpeed = 200;//角色x轴移动速度
+        this.moveSpeed = 250;//角色x轴移动速度
         this.jumpSpeed = 6;//角色跳跃速度
         this.wallSpeed = 3;//角色下滑速度
         this.gravity = game.gravity; // 游戏重力
@@ -25,9 +25,9 @@ class Player {
         this.inAirMoveMultiplier = 0.7;//角色离地在空中的时候，水平移动速度会乘上这个系数
         this.wallSlideSlowMultiplier = 0.2;//角色在爬墙的时候，移动系数 
 
-        this.dashDuration = 0.5; //冲刺时间
+        this.dashDuration = 0.3; //冲刺时间
         this.dashSpeed = 600;//冲刺速度
-        this.dashCooldown = 0.5;//冲刺冷却时间
+        this.dashCooldown = 0.1;//冲刺冷却时间
 
         this.facingRight = true; //角色初始是否朝右
         this.facingDir = 1;      //朝向
