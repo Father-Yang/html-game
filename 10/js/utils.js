@@ -1,4 +1,13 @@
 class Vector2 {
+
+    // ====== 静态变量（静态只读常量）======
+    static ZERO = new Vector2(0, 0);
+    static ONE = new Vector2(1, 1);
+    static UP = new Vector2(0, -1);
+    static DOWN = new Vector2(0, 1);
+    static LEFT = new Vector2(-1, 0);
+    static RIGHT = new Vector2(1, 0);
+
     constructor(x = 0, y = 0) {
         if (x instanceof Vector2) {
             // 传入向量，拷贝

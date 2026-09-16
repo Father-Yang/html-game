@@ -14,7 +14,7 @@ window.addEventListener('load', function(){
             this.height = height;
 
             this.gravity = 10; // 游戏重力
-            this.groundMargin = 20;
+
             this.physicsSystem = new PhysicsSystem();
             this.player = new Player(this); 
             this.camera = new Camera(this);

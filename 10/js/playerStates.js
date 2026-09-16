@@ -32,7 +32,7 @@ class State{
         console.log(this.stateName + ":enter");  
     }
     update(deltaTime){
-        console.log(this.stateName + ":update"); 
+        // console.log(this.stateName + ":update"); 
 
         this.dashCooldownTimer -=  deltaTime;
         if(this.dashCooldownTimer < 0){//重置冲刺冷却 TODO 冲刺感觉卡手
@@ -67,14 +67,19 @@ class State{
 
 //地面状态
 class PlayerGroundState extends State{
-    constructor(stateMachine){
-        super(stateMachine, "Ground");
+    constructor(stateMachine, name){
+        super(stateMachine, "Ground->" + name);
     }
     enter(){    
         super.enter();
     }
     update(deltaTime){
-        super.update(deltaTime);  
+        super.update(deltaTime);
+
+        //this.player.velocity.y< 0 防止动画切换跳帧
+        if (this.player.velocity.y <= 0 && this.player.groundDetected == false)
+            this.stateMachine.change(this.player.fallState);
+
         if(Input.isKeyDown("Space")){
             this.stateMachine.change(this.player.jumpState);
         }
@@ -89,22 +94,18 @@ class PlayerGroundState extends State{
 
 //空中状态
 class PlayerAiredState extends State{
-    constructor(stateMachine){
-        super(stateMachine, "Air");
+    constructor(stateMachine, name){
+        super(stateMachine, "Air->" + name);
     }
     enter(){    
         super.enter();
     }
     update(deltaTime){
         super.update(deltaTime);
-        // console.log("PlayerAiredState:",this.player.velocity, this.player.game.gravity);
-
-        // this.player.setVelocity(new Vector2(
-        //         this.player.velocity.x * (this.player.moveSpeed * this.player.inAirMoveMultiplier) * deltaTime, 
-        //         (this.player.velocity.y - this.player.game.gravity) * deltaTime));
+  
         this.player.setVelocity(new Vector2(
-                this.player.velocity.x, 
-                this.player.velocity.y + this.player.game.gravity * deltaTime));
+                this.player.velocity.x * Math.pow(this.player.inAirMoveMultiplier, deltaTime) , //空中速度横向衰减 
+                this.player.velocity.y + this.player.gravity * deltaTime));
             
     }
     exit(){
@@ -139,12 +140,12 @@ class PlayerBasicAttackState extends State{
         } 
 
         //根据控制按键更新攻击方向
-        this.#attackDir = (Input.getAxis() !== 0)?Input.getAxis():this.player.facingDir;
+        this.#attackDir = (Input.getAxisX() !== 0)?Input.getAxisX():this.player.facingDir;
 
         //设置攻击初始速度向量
         this.player.setVelocity(
             new Vector2(this.player.attackVelocity[this.#comboIndex - 1].x * this.#attackDir, 
-                0));
+                       -this.player.attackVelocity[this.#comboIndex - 1].y));
         //初始攻击速度保持时间   
         this.#attackVelocityTimer = this.player.attackVelocityDuration;
 
@@ -157,7 +158,8 @@ class PlayerBasicAttackState extends State{
         //初始攻击持续时间结束 水平速度设置为0
         this.#attackVelocityTimer -= deltaTime;
         if(this.#attackVelocityTimer < 0)
-            this.player.setVelocity(new Vector2(0, this.player.velocity.y));
+            this.player.setVelocity(new Vector2(0, this.player.velocity.y + this.player.gravity * deltaTime));
+
 
         //根据攻击键和是否最后一次连招 判断设置连击 最后一次连击后一定会进入到idle状态
         if(Input.isMouseDown() && (this.#comboIndex < this.#combolimit)){
@@ -195,7 +197,12 @@ class PlayerIdleState extends PlayerGroundState{
     update(deltaTime){
         super.update(deltaTime);
         this.player.animationPlayer.update(deltaTime);
-        if(Input.getAxis() !== 0){
+
+        if(Input.getAxisX() === this.player.facingDir && this.player.wallDetected){
+            return;
+        }
+        if(Input.getAxisX() !== 0){
+            this.player.flip();
             this.stateMachine.change(this.player.runState);
         }
     }
@@ -212,14 +219,16 @@ class PlayerRunState extends PlayerGroundState{
     }
     enter(){    
         super.enter();
+        console.log("enter==",this.player.globalPosition);
         this.player.animationPlayer.play("Run");
     }
     update(deltaTime){
         super.update(deltaTime);
         this.player.animationPlayer.update(deltaTime);
-        const direction = Input.getAxis();
-        if(direction === 0){
+        const direction = Input.getAxisX();
+        if(direction === 0 || this.player.wallDetected){
             this.stateMachine.change(this.player.idleState);
+            return;
         }
         this.player.setVelocity(new Vector2(
             direction * this.player.moveSpeed * deltaTime, 
@@ -227,6 +236,7 @@ class PlayerRunState extends PlayerGroundState{
     }
     exit(){
         super.exit();
+        console.log("exit==",this.player.globalPosition);
     }
 }
 
@@ -290,7 +300,7 @@ class PlayerDashState extends State{
         super.enter();
         this.stateTimer = this.player.dashDuration;
         //根据控制按键更新冲刺方向
-        this.#dashDir = (Input.getAxis() !== 0)?Input.getAxis():this.player.facingDir;
+        this.#dashDir = (Input.getAxisX() !== 0)?Input.getAxisX():this.player.facingDir;
         this.player.animationPlayer.play("Dash");
     }
     update(deltaTime){
@@ -338,49 +348,33 @@ class PlayerWallSlideState extends State{
     enter(){    
         super.enter();
         this.player.animationPlayer.play("Wall");
+        console.log(this.player.velocity)
     }
     update(deltaTime){
         super.update(deltaTime);
         this.player.animationPlayer.update(deltaTime);
+
+        // if (player.moveInput.y < 0)
+        //     player.SetVelocity(player.moveInput.x, rb.linearVelocity.y);
+        // else
+        //     player.SetVelocity(player.moveInput.x, rb.linearVelocity.y * player.wallSlideSlowMultiplier);
+
+        if (Input.getAxisY() > 0){
+            this.player.setVelocity(new Vector2(Input.getAxisX(), this.player.wallSpeed));
+        }
+        else{
+            this.player.setVelocity(new Vector2(Input.getAxisX(), this.player.velocity.y * Math.pow(this.player.wallSlideSlowMultiplier, deltaTime)));
+            console.log(this.player.velocity)
+        }
+        if (this.player.wallDetected === false)
+            this.stateMachine.change(this.player.fallState);
+        if (this.player.groundDetected){       
+            this.stateMachine.change(this.player.idleState);
+            this.player.flip();
+        }
     }
     exit(){
         super.exit();
     }
 
 }
-
-
-
-// public class Player_WallSlideState : EntityState
-// {
-//     public Player_WallSlideState(Player player, StateMachine stateMachine, string animBoolName) : base(player, stateMachine, animBoolName)
-//     {
-//     }
-
-//     public override void Update()
-//     {
-//         base.Update();
-//         HandleWallSlide();
-
-
-//         if (input.Player.Jump.WasPressedThisFrame())
-//             stateMachine.ChangeState(player.wallJumpState);
-
-//         if (player.wallDetected == false)
-//             stateMachine.ChangeState(player.fallState);
-
-//         if (player.groundDetected)
-//         {
-//             stateMachine.ChangeState(player.idleState);
-//             player.Flip();
-//         }
-//     }
-
-//     private void HandleWallSlide()
-//     {
-//         if (player.moveInput.y < 0)
-//             player.SetVelocity(player.moveInput.x, rb.linearVelocity.y);
-//         else
-//             player.SetVelocity(player.moveInput.x, rb.linearVelocity.y * player.wallSlideSlowMultiplier);
-//     }
-// }

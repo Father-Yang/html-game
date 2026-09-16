@@ -88,12 +88,13 @@ class CollisionManager{
         return this.#colliders;
     }
 
-    raycast(origin, direction, dist, layerMask, ignore = null) {
+    raycast(type,origin, direction, dist, ignore = null) {
         const len = Math.sqrt(direction.x * direction.x + direction.y * direction.y);
         const dx = direction.x / len;
         const dy = direction.y / len;
 
         for (const other of this.#colliders) {
+            if(other.getType() !== type) continue;
             if (!other.isEnabled()) continue;
             if (other === ignore) continue;
             
@@ -126,10 +127,10 @@ class CollisionManager{
                 continue;
             }
 
-            if (tmin <= tmax && tmin >= 0) return true;
+            if (tmin <= tmax && tmin >= 0) return other;
         }
 
-        return false;
+        return null;
     }
 }
 window.collisionManager = CollisionManager.getInstance();

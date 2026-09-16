@@ -4,7 +4,7 @@ class Sprite{
         this.size = size;
         this.frameCoord = frameCoord;
         this.globalPosition = globalPosition;
-        this.facingRight = true;
+        this.facingDir = 1;
         this.anchor = anchor;
         this.scale = scale;
     }
@@ -15,7 +15,7 @@ class Sprite{
         // 把原点移到图片右侧
         context.translate(this.globalPosition.x, this.globalPosition.y);
         // X轴缩放-1，镜像
-        context.scale(this.facingRight?1:-1, 1);
+        context.scale(this.facingDir, 1);
         // console.log(this.globalPosition);
         context.drawImage(
             this.image,
@@ -26,7 +26,7 @@ class Sprite{
             this.size.y * this.scale
         );
         if(debug){
-            context.strokeStyle = 'rgba(255, 255, 0, 1)';   
+            context.strokeStyle = 'rgba(255, 255, 0, 0.3)';   
             context.strokeRect(
                 -this.anchor.x, 
                 -this.anchor.y,

@@ -61,11 +61,18 @@ class InputManager {
     isKeyPressed(code) { return this.#keyPressed.has(code); }
     isKeyReleased(code) { return this.#keyReleased.has(code); }
 
-    getAxis() {
-        let axis = 0;
-        if (this.isKeyDown("KeyA") || this.isKeyDown("ArrowLeft")) axis -= 1;
-        if (this.isKeyDown("KeyD") || this.isKeyDown("ArrowRight")) axis += 1;
-        return axis;
+    getAxisX() {
+        let axisX = 0;
+        if (this.isKeyDown("KeyA") || this.isKeyDown("ArrowLeft")) axisX -= 1;
+        if (this.isKeyDown("KeyD") || this.isKeyDown("ArrowRight")) axisX += 1;
+        return axisX;
+    }
+
+    getAxisY() {
+        let axisY = 0;
+        if (this.isKeyDown("KeyW") || this.isKeyDown("ArrowUp")) axisY -= 1;
+        if (this.isKeyDown("KeyS") || this.isKeyDown("ArrowDown")) axisY += 1;
+        return axisY;
     }
 
     //鼠标
