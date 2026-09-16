@@ -19,7 +19,7 @@ html, body {
     display: block; /* 重要！canvas 默认是 inline，会有底部缝隙，撑开页面产生滚动条 */
 }
 
-#player, #layer1, #layer2, #tiles {
+#player, #layer1, #layer2, #tiles, #ground, #wall, #platform {
     display: none;
 }
 
