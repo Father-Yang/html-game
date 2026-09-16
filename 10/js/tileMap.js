@@ -5,6 +5,13 @@ class Ground {
     }
 }
 
+class Wall {
+  constructor(globalPosition, colliderSize) {
+        this.collider = new Collider(globalPosition, colliderSize, this);
+        this.collider.setType(CollisionType.Wall);
+    }
+}
+
 class TileMap {
     #grounds = [];
     #walls = [];
@@ -63,6 +70,8 @@ class TileMap {
                 const y = row * this.tileH;
                 if((tile === 1))
                     this.#grounds.push(new Ground(new Vector2(x, y), new Vector2(32, 32)));
+                else if((tile === 2))
+                    this.#walls.push(new Wall(new Vector2(x, y), new Vector2(32, 32)));
             }
         }
         

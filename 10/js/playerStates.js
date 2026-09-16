@@ -38,8 +38,8 @@ class State{
         if(this.dashCooldownTimer < 0){//重置冲刺冷却 TODO 冲刺感觉卡手
             this.dashCooldownTimer = this.player.dashCooldown;
         }
-
-        if(Input.isKeyDown("ShiftLeft") && this.canDash()) {
+        if(Input.isKeyDown("KeyQ") && this.canDash()) {
+        // if(Input.isKeyDown("ShiftLeft") && this.canDash()) {
             this.stateMachine.change(this.player.dashState);
         }
     }
@@ -267,9 +267,11 @@ class PlayerFallState extends PlayerAiredState{
         super.update(deltaTime);
         this.player.animationPlayer.update(deltaTime);
 
-        if (this.player.onGround()){
-            // console.log("this.player.onGround()")
+        if (this.player.groundDetected){
             this.stateMachine.change(this.player.idleState); 
+        }
+        if (this.player.wallDetected){
+            this.stateMachine.change(this.player.wallSlideState); 
         }
     }
     exit(){
@@ -299,7 +301,7 @@ class PlayerDashState extends State{
 
         this.stateTimer -= deltaTime;
         if(this.stateTimer < 0){
-            if(this.player.onGround()){
+            if(this.player.groundDetected){
                 this.stateMachine.change(this.player.idleState);
             }
             else{
@@ -327,3 +329,58 @@ class PlayerDashState extends State{
     // }
 
 }
+
+//墙
+class PlayerWallSlideState extends State{
+    constructor(stateMachine){
+        super(stateMachine, "Wall");
+    }
+    enter(){    
+        super.enter();
+        this.player.animationPlayer.play("Wall");
+    }
+    update(deltaTime){
+        super.update(deltaTime);
+        this.player.animationPlayer.update(deltaTime);
+    }
+    exit(){
+        super.exit();
+    }
+
+}
+
+
+
+// public class Player_WallSlideState : EntityState
+// {
+//     public Player_WallSlideState(Player player, StateMachine stateMachine, string animBoolName) : base(player, stateMachine, animBoolName)
+//     {
+//     }
+
+//     public override void Update()
+//     {
+//         base.Update();
+//         HandleWallSlide();
+
+
+//         if (input.Player.Jump.WasPressedThisFrame())
+//             stateMachine.ChangeState(player.wallJumpState);
+
+//         if (player.wallDetected == false)
+//             stateMachine.ChangeState(player.fallState);
+
+//         if (player.groundDetected)
+//         {
+//             stateMachine.ChangeState(player.idleState);
+//             player.Flip();
+//         }
+//     }
+
+//     private void HandleWallSlide()
+//     {
+//         if (player.moveInput.y < 0)
+//             player.SetVelocity(player.moveInput.x, rb.linearVelocity.y);
+//         else
+//             player.SetVelocity(player.moveInput.x, rb.linearVelocity.y * player.wallSlideSlowMultiplier);
+//     }
+// }

@@ -27,7 +27,7 @@ window.addEventListener('load', function(){
             if(Input.isKeyDown("Enter")){
                 debug = !debug;
             }
-            this.physicsSystem.update(deltaTime);
+            // this.physicsSystem.update(deltaTime); //暂时关掉全局扫描
             this.parallax.update(deltaTime);
             this.camera.update(deltaTime);
             this.player.update(deltaTime);

@@ -26,7 +26,7 @@ class Sprite{
             this.size.y * this.scale
         );
         if(debug){
-            context.strokeStyle = 'rgba(255, 255, 0, 0.5)';   
+            context.strokeStyle = 'rgba(255, 255, 0, 1)';   
             context.strokeRect(
                 -this.anchor.x, 
                 -this.anchor.y,

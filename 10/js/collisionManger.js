@@ -87,6 +87,50 @@ class CollisionManager{
     getColliders() {
         return this.#colliders;
     }
+
+    raycast(origin, direction, dist, layerMask, ignore = null) {
+        const len = Math.sqrt(direction.x * direction.x + direction.y * direction.y);
+        const dx = direction.x / len;
+        const dy = direction.y / len;
+
+        for (const other of this.#colliders) {
+            if (!other.isEnabled()) continue;
+            if (other === ignore) continue;
+            
+            if (!ignore.canCollideWith(other)) continue;
+            // if ((layerMask & (1 << other.getType())) === 0) continue;
+            
+            const minX = other.x;
+            const maxX = other.x + other.width;
+            const minY = other.y;
+            const maxY = other.y + other.height;
+
+            let tmin = 0;
+            let tmax = dist;
+
+            if (Math.abs(dx) > 1e-6) {
+                const tx1 = (minX - origin.x) / dx;
+                const tx2 = (maxX - origin.x) / dx;
+                tmin = Math.max(tmin, Math.min(tx1, tx2));
+                tmax = Math.min(tmax, Math.max(tx1, tx2));
+            } else if (origin.x < minX || origin.x > maxX) {
+                continue;
+            }
+
+            if (Math.abs(dy) > 1e-6) {
+                const ty1 = (minY - origin.y) / dy;
+                const ty2 = (maxY - origin.y) / dy;
+                tmin = Math.max(tmin, Math.min(ty1, ty2));
+                tmax = Math.min(tmax, Math.max(ty1, ty2));
+            } else if (origin.y < minY || origin.y > maxY) {
+                continue;
+            }
+
+            if (tmin <= tmax && tmin >= 0) return true;
+        }
+
+        return false;
+    }
 }
 window.collisionManager = CollisionManager.getInstance();
 
@@ -317,8 +361,6 @@ class PhysicsSystem {
                 }
             }
         }
-    }
+    }   
 }
-
-
 

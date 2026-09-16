@@ -23,17 +23,18 @@ class Player {
         this.scale = 2;//图片缩放倍数
         
         this.size = new Vector2(69,44); //单帧图片大小
-        this.anchor = new Vector2(0.4, 1).mul(this.scale).mul(this.size);//锚点位置
+        this.anchor = new Vector2(0.4, 0.6).mul(this.scale).mul(this.size);//锚点位置
         this.colliderSize = new Vector2(26, 64);//碰撞体大小
 
         this.globalPosition = new Vector2(100, 320); //角色全局坐标
 
-        this.onGroundFlag = false;
+        this.groundDetected = false; //地面检测
+        this.wallDetected = false;  //墙壁检测
 
         this.sprites = new Map(); // 角色精灵图集
-        this.#initSprites("player"); 
+        this.#initSprites("player");  //根据image id=player 初始化全部的sprite
 
-        this.#initAnimation(); 
+        this.#initAnimation(); //根据图片sprite初始化全部的动画
         // console.log(this.animationPlayer);
 
         //角色状态
@@ -43,15 +44,18 @@ class Player {
         this.fallState = new PlayerFallState(this.stateMachine);
         this.dashState = new PlayerDashState(this.stateMachine);
         this.basicAttackState = new PlayerBasicAttackState(this.stateMachine);
+        this.wallSlideState = new PlayerWallSlideState(this.stateMachine);
 
         this.stateMachine.init(this.idleState);//初始化状态机
 
-        //设置碰撞体
+        
         // this.collider = new CapsuleCollider(
         //     this.globalPosition.sub(this.colliderSize.x * 0.5, this.colliderSize.y),
         //     this.colliderSize,this);
+
+        //设置碰撞体
         this.collider = new Collider(
-            this.globalPosition.sub(this.colliderSize.x * 0.5, this.colliderSize.y),
+            this.globalPosition.sub(this.colliderSize.x * 0.5, -this.colliderSize.y),
             this.colliderSize, this);
         this.collider.setType(CollisionType.Player);
 
@@ -60,30 +64,15 @@ class Player {
     #initSprites(imageID){
         const image = document.getElementById(imageID);
         const sprites_config = [
-            {"Idle":
-                {startPos:{x:0, y:0},
-                 endPos:{x:5, y:0}}},
-            {"Run":
-                {startPos:{x:0, y:1},
-                 endPos:{x:1, y:2}}}, 
-            {"Jump":
-                {startPos:{x:5, y:6},
-                 endPos:{x:2, y:7}}},    
-            {"Fall":
-                {startPos:{x:3, y:7},
-                 endPos:{x:0, y:8}}},       
-            {"Dash":
-                {startPos:{x:3, y:11},
-                 endPos:{x:0, y:12}}},
-            {"Attack_1":
-                {startPos:{x:2, y:2},
-                 endPos:{x:3, y:3}}},
-            {"Attack_2":
-                {startPos:{x:4, y:3},
-                 endPos:{x:1, y:4}}},
-            {"Attack_3":
-                {startPos:{x:5, y:12},
-                 endPos:{x:5, y:13}}}
+            {"Idle":{startPos:{x:0, y:0}, endPos:{x:5, y:0}}},
+            {"Run": {startPos:{x:0, y:1}, endPos:{x:1, y:2}}}, 
+            {"Jump":{startPos:{x:5, y:6},  endPos:{x:2, y:7}}},    
+            {"Fall":{startPos:{x:3, y:7},endPos:{x:0, y:8}}},       
+            {"Dash":{startPos:{x:3, y:11},endPos:{x:0, y:12}}},
+            {"Attack_1":{startPos:{x:2, y:2},endPos:{x:3, y:3}}},
+            {"Attack_2":{startPos:{x:4, y:3},endPos:{x:1, y:4}}},
+            {"Attack_3":{startPos:{x:5, y:12},endPos:{x:5, y:13}}},
+            {"Wall":{startPos:{x:0, y:10},endPos:{x:2, y:10}}},
         ];
         if(image){
             const hframe = image.width / this.size.x; 
@@ -117,10 +106,6 @@ class Player {
         this.animationPlayer.initAnimations(this);
     }
 
-    onGround(){
-        return this.globalPosition.y >= 320;
-    }
-
     // 下面的函数由状态机中的状态执行update时调用
     setVelocity(velocity){
         this.velocity = velocity;
@@ -135,11 +120,38 @@ class Player {
         this.stateMachine.currentState.callAnimationTrigger();
     }
 
+    //每帧检测是否碰撞地面，是否碰撞墙壁
+    handleCollisionDetection(){
+        this.groundDetected = collisionManager.raycast(
+            new Vector2(this.collider.x + this.collider.width / 2, this.collider.y + this.collider.height),
+            new Vector2(0, 1),
+            20,
+            collisionManager.findMapping(CollisionType.Ground),
+            this.collider
+        );
+        console.log("this.groundDetected=", this.groundDetected)
+
+        this.wallDetected = collisionManager.raycast(
+            new Vector2(this.collider.x + this.collider.width / 2, this.collider.y + this.collider.height),
+            new Vector2(1, 0) * this.facingDir,
+            20,
+            collisionManager.findMapping(CollisionType.Wall),
+            this.collider
+        );
+
+        console.log("this.wallDetected=", this.wallDetected)
+        // groundDetected = Physics2D.Raycast(transform.position, Vector2.down, groundCheckDistance, whatIsGround);
+        // wallDetected = Physics2D.Raycast(primaryWallCheck.position, Vector2.right * facingDir, wallCheckDistance, whatIsGround)
+        //             && Physics2D.Raycast(secondaryWallCheck.position, Vector2.right * facingDir, wallCheckDistance, whatIsGround);
+    }
+
     update(deltaTime){
+        this.handleCollisionDetection(); //先做物理碰撞检测再更新状态机
+
         this.stateMachine.update(deltaTime);//状态机更新
         this.globalPosition.addEqual(this.velocity);//全局坐标更新
         // console.log("player:",this.globalPosition);
-        this.collider.setPosition(this.globalPosition.sub(this.colliderSize.x * 0.5, this.colliderSize.y));
+        this.collider.setPosition(this.globalPosition.sub(this.colliderSize.x * 0.5, this.colliderSize.y * 0.5));
         // this.resolveCollision(deltaTime);
 
         const spriteFrames = this.sprites.get(this.animationPlayer.currentAnim.name);
