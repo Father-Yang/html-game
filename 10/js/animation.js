@@ -61,6 +61,7 @@ class Animation {
 
     // 播放
     play(playFrame = 0) {
+        // console.log("this.currentAnim.play:==>",this.name, this.isPlaying)
         if (this.isPlaying) return;
         this.isPlaying = true;
         this.currentFrame = playFrame;
@@ -74,10 +75,12 @@ class Animation {
     // 停止，重置时间到0
     stop() {
         this.isPlaying = false;
-        this.time = 0;
+        this.timer = 0;
+        this.currentFrame = 0;
     }
 
     update(deltaTime) {
+        // console.log("this.currentAnim.update:==>",this.name, this.currentFrame)
         if(this.timer >= this.duration){
             // console.log(this.timer, "---", this.duration);
             if(this.currentFrame >= (this.frameList.length-1)){
@@ -118,7 +121,11 @@ class AnimationPlayer {
             if(animName === "Jump" || animName === "Fall" || animName.includes("Attack")){
                 anim.loop = false;
             }
-            if(animName.includes("Attack")){
+            // if(animName.includes("Attack")){
+            if(animName === "Attack_1" 
+            || animName === "Attack_2" 
+            || animName === "Attack_3" 
+            || animName === "Jump_Attack_End"){
                 anim.onComplete = () => {
                     this.entity.callAnimationTrigger();
                 };
@@ -133,17 +140,18 @@ class AnimationPlayer {
 
     play(name) {
         const anim = this.animations.get(name);
+        // console.log("this.currentAnim.play:==>",name, anim)
         if (!anim) return;
         if (this.currentAnim)
-            this.currentAnim.currentFrame = 0;//如果是切换动画将前一个动画帧初始0
+            this.currentAnim.stop();
         this.currentAnim = anim;
         this.currentAnim.play();
     }
 
     update(deltaTime) {
         if (this.currentAnim) {
-            this.currentAnim.update(deltaTime);
-            // console.log(this.currentAnim.name)
+            // console.log("AnimationPlayer update:==>",this.currentAnim.name)
+            this.currentAnim.update(deltaTime);      
         }
     }
     draw(context){

@@ -6,13 +6,7 @@ class Camera {
         bottom: 0.1  
     };
 
-    // #margin = {
-    //     left: 0,   
-    //     right: 0,   
-    //     top: 0,     
-    //     bottom: 0  
-    // };
-
+    //TODO 摄像机要预留底部
     constructor(game) {
         this.globalPosition = new Vector2(0, 0);
         this.target = null;

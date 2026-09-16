@@ -106,6 +106,11 @@ class PlayerAiredState extends State{
         this.player.setVelocity(new Vector2(
                 this.player.velocity.x * Math.pow(this.player.inAirMoveMultiplier, deltaTime) , //空中速度横向衰减 
                 this.player.velocity.y + this.player.gravity * deltaTime));
+
+        if(Input.isMouseDown()){//空中状态可以触发攻击
+            this.stateMachine.change(this.player.jumpAttackState);
+        }
+        
             
     }
     exit(){
@@ -252,8 +257,8 @@ class PlayerJumpState extends PlayerAiredState{
         super.update(deltaTime);
         this.player.animationPlayer.update(deltaTime);
         // console.log("PlayerJumpState:",this.player.velocity, this.player.game.gravity);
-        // if (this.player.velocity.y >= 0 && this.stateMachine.currentState != this.player.jumpAttackState){
-        if (this.player.velocity.y >= 0){
+        //增加判断排除下落攻击状态
+        if (this.player.velocity.y >= 0 && this.stateMachine.currentState !== this.player.jumpAttackState){
             this.stateMachine.change(this.player.fallState);
         }
     }
@@ -375,7 +380,7 @@ class PlayerWallSlideState extends State{
 
 }
 
-//墙壁跳跃状态
+//墙壁跳跃状态 //TODO 墙壁跳跃状态好像有BUG 上墙之后向上缓冲移动
 class PlayerWallJumpState extends State{
     constructor(stateMachine){
         super(stateMachine, "WallJump");
@@ -401,6 +406,44 @@ class PlayerWallJumpState extends State{
         }
         if (this.player.wallDetected){
             this.stateMachine.change(this.player.wallSlideState); 
+        }
+    }
+    exit(){
+        super.exit();
+    }
+
+}
+
+//跳跃攻击状态
+class PlayerJumpAttackState extends State{
+    #touchedGround = false;//触地状态
+    constructor(stateMachine){
+        super(stateMachine, "JumpAttack");
+    }
+    enter(){    
+        super.enter();
+        this.#touchedGround = false;
+        this.player.animationPlayer.play("Jump_Attack_Start");
+        this.player.setVelocity(new Vector2(this.player.jumpAttackSpeed.x * this.player.facingDir, this.player.jumpAttackSpeed.y));
+         
+    }
+    update(deltaTime){
+        super.update(deltaTime);
+        this.player.animationPlayer.update(deltaTime);
+
+        this.player.setVelocity(new Vector2(
+            this.player.velocity.x * Math.pow(this.player.inAirMoveMultiplier, deltaTime) , //空中速度横向衰减 
+            this.player.velocity.y + this.player.gravity * deltaTime));
+
+        if(this.player.groundDetected && this.#touchedGround === false){
+            this.#touchedGround = true;
+
+            this.player.setVelocity(new Vector2(0 , this.player.velocity.y));
+
+            this.player.animationPlayer.play("Jump_Attack_End");
+        }
+        if(this.triggerCalled && this.player.groundDetected){
+            this.stateMachine.change(this.player.idleState); 
         }
     }
     exit(){

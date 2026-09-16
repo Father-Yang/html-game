@@ -18,6 +18,8 @@ class Player {
         this.wallSpeed = 4;//角色下滑速度
         this.gravity = game.gravity; // 游戏重力
         this.wallJumpSpeed = new Vector2(4, 4);//角色墙体跳跃速度
+
+        this.jumpAttackSpeed = new Vector2(2, 3);//角色跳跃攻击速度
         
         this.attackVelocity = [new Vector2(3, 0.5), new Vector2(0, 0), new Vector2(5, 1)];//角色攻击速度向量
         this.attackVelocityDuration = 0.1;//角色攻击初速度持续时间
@@ -50,6 +52,7 @@ class Player {
         this.basicAttackState = new PlayerBasicAttackState(this.stateMachine);
         this.wallSlideState = new PlayerWallSlideState(this.stateMachine);
         this.wallJumpState = new PlayerWallJumpState(this.stateMachine);
+        this.jumpAttackState = new PlayerJumpAttackState(this.stateMachine);
 
         this.stateMachine.init(this.idleState);//初始化状态机
 
@@ -79,6 +82,8 @@ class Player {
             {"Attack_2":{startPos:{x:4, y:3},endPos:{x:1, y:4}}},
             {"Attack_3":{startPos:{x:5, y:12},endPos:{x:5, y:13}}},
             {"Wall":{startPos:{x:0, y:10},endPos:{x:2, y:10}}},
+            {"Jump_Attack_Start":{startPos:{x:5, y:12},endPos:{x:0, y:13}}},
+            {"Jump_Attack_End":{startPos:{x:1, y:13},endPos:{x:5, y:13}}},
         ];
         if(image){
             const hframe = image.width / this.size.x; 
