@@ -346,7 +346,7 @@ class PlayerWallSlideState extends State{
     enter(){    
         super.enter();
         this.player.animationPlayer.play("Wall");
-        console.log(this.player.velocity)
+        // console.log(this.player.velocity)
     }
     update(deltaTime){
         super.update(deltaTime);
@@ -362,7 +362,7 @@ class PlayerWallSlideState extends State{
         }
         else{
             this.player.setVelocity(new Vector2(Input.getAxisX(), this.player.velocity.y * Math.pow(this.player.wallSlideSlowMultiplier, deltaTime)));
-            console.log(this.player.velocity)
+            // console.log(this.player.velocity)
         }
         if (this.player.wallDetected === false)
             this.stateMachine.change(this.player.fallState);

@@ -28,7 +28,7 @@ class Camera {
         this.smoothSpeed = 5; //摄像机平滑移动
         this.threshold = 1;//摄像机临近阈值
 
-        console.log(this.leftLimit , this.rightLimit, this.topLimit, this.bottomLimit)
+        // console.log(this.leftLimit , this.rightLimit, this.topLimit, this.bottomLimit)
     }
 
     follow(target) {

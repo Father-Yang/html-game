@@ -28,9 +28,10 @@ window.addEventListener('load', function(){
                 debug = !debug;
             }
             // this.physicsSystem.update(deltaTime); //暂时关掉全局扫描
-            this.parallax.update(deltaTime);
+            
             this.player.update(deltaTime);
             this.camera.update(deltaTime); //必须先更行player再更新摄像机
+            this.parallax.update(deltaTime);//更新完摄像机再更新视差图
 
             Input.endFrame();//物理帧结束清除输入
         }

@@ -162,14 +162,14 @@ class Player {
         if(wall_1 && wall_2){
             this.wallDetected = true;
             this.velocity = new Vector2(0 , this.velocity.y);
-            console.log(this.globalPosition ,  wall_1.x + wall_1.width + w_length)
+            // console.log(this.globalPosition ,  wall_1.x + wall_1.width + w_length)
             if(this.facingDir === 1){
                 this.globalPosition = new Vector2(wall_1.x - w_length, this.globalPosition.y);
             }
             else if(this.facingDir === -1){
                 this.globalPosition = new Vector2(wall_1.x + wall_1.width + w_length, this.globalPosition.y);
             }
-            console.log(this.globalPosition)
+            // console.log(this.globalPosition)
         }
         else{
             this.wallDetected = false;
