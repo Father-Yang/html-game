@@ -41,7 +41,7 @@ class State{
             console.log(this.player.animationPlayer.currentAnim.name, this.player.animationPlayer.currentAnim.currentFrame);
         }    
         this.dashCooldownTimer -=  deltaTime;
-        if(this.dashCooldownTimer < 0){//重置冲刺冷却 TODO 冲刺感觉卡手
+        if(this.dashCooldownTimer < 0){//重置冲刺冷却 TODO 冲刺感觉卡手 FIXED 修改了一下冷却时间
             this.dashCooldownTimer = this.player.dashCooldown;
         }
         if(Input.isKeyDown("KeyQ") && this.canDash()) {
@@ -387,7 +387,7 @@ class PlayerWallSlideState extends State{
 
 }
 
-//墙壁跳跃状态 //TODO 墙壁跳跃状态好像有BUG 上墙之后向上缓冲移动
+//墙壁跳跃状态 //TODO 墙壁跳跃状态好像有BUG 上墙之后向上缓冲移动 应该是保留了向上的速度 暂时还不知道怎么改
 class PlayerWallJumpState extends State{
     constructor(stateMachine){
         super(stateMachine, "WallJump");
@@ -420,6 +420,10 @@ class PlayerWallJumpState extends State{
     }
 
 }
+
+// isMousePressed()
+// isMouseDown()
+// isMouseClicked()
 
 //跳跃攻击状态
 class PlayerJumpAttackState extends State{

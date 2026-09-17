@@ -88,7 +88,8 @@ class CollisionManager{
         return this.#colliders;
     }
 
-    raycast(type,origin, direction, dist, ignore = null) {
+    
+    raycast(type, origin, direction, dist, ignore = null) {
         const len = Math.sqrt(direction.x * direction.x + direction.y * direction.y);
         const dx = direction.x / len;
         const dy = direction.y / len;

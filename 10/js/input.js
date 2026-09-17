@@ -9,6 +9,7 @@ class InputManager {
     #mouseDown = false;
     #mousePressed = false;
     #mouseReleased = false;
+    #mouseClicked = false;    //鼠标单击
 
     constructor() {
         if (InputManager.#instance) {
@@ -53,6 +54,7 @@ class InputManager {
             if (e.button === 0) {
                 this.#mouseDown = false;
                 this.#mouseReleased = true;
+                this.#mouseClicked = true;   // 松开左键 = click
             }
         });
     }
@@ -79,12 +81,14 @@ class InputManager {
     isMouseDown() { return this.#mouseDown; }
     isMousePressed() { return this.#mousePressed; }
     isMouseReleased() { return this.#mouseReleased; }
+    isMouseClicked() { return this.#mouseClicked; }  
 
     endFrame() {
         this.#keyPressed.clear();
         this.#keyReleased.clear();
         this.#mousePressed = false;
         this.#mouseReleased = false;
+        this.#mouseClicked = false;    
     }
 }
 

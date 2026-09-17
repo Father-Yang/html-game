@@ -216,7 +216,7 @@ class Player {
             sprite.globalPosition = this.globalPosition;
         }) 
         
-        if(this.globalPosition.y > this.fallMaxDistance){ //TODO 重置初始位置有BUG 
+        if(this.globalPosition.y > this.fallMaxDistance){ //TODO 重置初始位置有BUG FIXED
             this.globalPosition = this.initGlobalPosition.clone();
             return;
         }  

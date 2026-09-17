@@ -6,7 +6,7 @@ class Camera {
         bottom: 0.2  
     };
 
-    //TODO 摄像机要预留底部
+    //TODO 摄像机要预留底部 FIXED
     constructor(game) {
         this.globalPosition = new Vector2(0, 0);
         this.target = null;
