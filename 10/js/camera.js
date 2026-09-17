@@ -99,7 +99,7 @@ class Camera {
 
         // ---- 新增：更新抖动 ----
         if (this.shakeTime > 0) {
-            console.log("Camera shakeTime:",this.shakeTime)
+            // console.log("Camera shakeTime:",this.shakeTime)
             this.shakeTime -= deltaTime;
 
             if (this.shakeTime <= 0) {

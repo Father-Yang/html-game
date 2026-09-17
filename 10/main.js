@@ -1,3 +1,11 @@
+//屏蔽鼠标
+document.body.style.cursor = 'none';
+
+//屏蔽右键弹框
+window.addEventListener("contextmenu", (e) => {
+    e.preventDefault();
+});
+//所有js和图片加载完毕后再执行主循环
 window.addEventListener('load', function(){
     const canvas = document.getElementById('canvas1');
     const ctx = canvas.getContext('2d');
