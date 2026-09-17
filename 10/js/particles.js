@@ -22,9 +22,9 @@ class Trail extends Particle{
     update(deltaTime){
         this.size *= 0.95;
         this.sprite.scale *= this.size;
-        // this.sprite.globalPosition = new Vector2(
-        //     this.sprite.globalPosition.x, 
-        //     this.sprite.globalPosition.y + this.sprite.size.y * this.size);
+        this.sprite.globalPosition = new Vector2(
+            this.sprite.globalPosition.x, 
+            this.sprite.globalPosition.y + this.sprite.size.y * (1 - this.size) * 0.5);
             // this.sprite.globalPosition.y);
         if(this.sprite.scale < 1) this.markedForDeletion = true;
     }
