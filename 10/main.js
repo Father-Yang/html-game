@@ -75,30 +75,34 @@ window.addEventListener('load', function(){
         game.autoScale()
     });
 
-    let timer = 0;
+    const logicFPS = 1000 / 60;
     let lastTime = performance.now();
-    const logicFPS = 1000 / 60.0;
-    let debug_timer = 1;
+    let timer = 0;       //计时器
+    let debug_timer = 1; //显示逻辑帧计时器
 
 
-    function animate(timeStamp){
+    function mainLoop(timeStamp){
         // 关闭像素平滑，需要每次刷新都设置
         ctx.imageSmoothingEnabled = false;
         ctx.mozImageSmoothingEnabled = false; //火狐兼容   
 
         ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-        const deltaTime = timeStamp - lastTime;
-             
+        let deltaTime = timeStamp - lastTime;
         lastTime = timeStamp;
+
+        // deltaTime 上限保护
+        if (deltaTime > 100) deltaTime = 100;
+
         timer += deltaTime;
 
-        if(timer >= logicFPS){        
-            game.update(timer * 0.001); 
+        while(timer >= logicFPS){        
+            game.update(logicFPS * 0.001); 
             debug_timer = timer;
             timer -= logicFPS;         
         }
         game.draw(ctx);
+
         if(debug) {
             ctx.save();
 
@@ -112,9 +116,9 @@ window.addEventListener('load', function(){
             ctx.restore();
         }  
         
-        requestAnimationFrame(animate);
+        requestAnimationFrame(mainLoop);
     }
-    animate(0);
+    requestAnimationFrame(mainLoop);
 
 });
 

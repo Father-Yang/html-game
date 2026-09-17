@@ -27,13 +27,18 @@ class State{
 
         this.triggerCalled = false;//动画触发器状态
         this.dashCooldownTimer = this.player.dashCooldown;//冲刺冷却计数器
+
+        this.debug = false;//是否开启调试输出
     }
     enter(){
+        this.debug = false;
         console.log(this.stateName + ":enter");  
     }
     update(deltaTime){
         // console.log(this.stateName + ":update"); 
-
+        if(this.debug){
+            console.log(this.player.animationPlayer.currentAnim.name, this.player.animationPlayer.currentAnim.currentFrame);
+        }    
         this.dashCooldownTimer -=  deltaTime;
         if(this.dashCooldownTimer < 0){//重置冲刺冷却 TODO 冲刺感觉卡手
             this.dashCooldownTimer = this.player.dashCooldown;
@@ -126,7 +131,7 @@ class PlayerBasicAttackState extends State{
     #combolimit = 3;//最大连击数
     #lastTimeAttack = 0;//上次连击的时间
 
-    #comboAttackQueued = false;
+    #comboAttackQueued = false;//连招状态
     #attackDir = 1;//攻击方向
 
     constructor(stateMachine){
@@ -137,7 +142,8 @@ class PlayerBasicAttackState extends State{
     }
     enter(){    
         super.enter();
-        this.#comboAttackQueued = false;
+        this.debug = true;
+        this.#comboAttackQueued = false; //进入状态后先将连招状态重置
         //连击技能索引
         if(this.#comboIndex > this.#combolimit 
             || (this.#lastTimeAttack + this.player.comboResetTime * 1000) < performance.now()){//上次退出的时间+间隔时间小于现在时间
@@ -159,12 +165,12 @@ class PlayerBasicAttackState extends State{
     update(deltaTime){
         super.update(deltaTime);
         this.player.animationPlayer.update(deltaTime);
+        
 
         //初始攻击持续时间结束 水平速度设置为0
         this.#attackVelocityTimer -= deltaTime;
         if(this.#attackVelocityTimer < 0)
             this.player.setVelocity(new Vector2(0, this.player.velocity.y + this.player.gravity * deltaTime));
-
 
         //根据攻击键和是否最后一次连招 判断设置连击 最后一次连击后一定会进入到idle状态
         if(Input.isMouseDown() && (this.#comboIndex < this.#combolimit)){
@@ -172,10 +178,7 @@ class PlayerBasicAttackState extends State{
         }   
         if(this.triggerCalled){//动画结束触发
             if(this.#comboAttackQueued){
-                //TODO ？？？？？？？？？？？？？？？？？？？？？？？？？？？
-                //设置当前动画帧false
-                //设置延时进入下一帧切换状态
-                this.stateMachine.change(this.player.basicAttackState);
+                this.player.setAttackStateWithDelay(); //设置攻击延时切换，等待下一帧执行
             }
             else{
                 this.stateMachine.change(this.player.idleState);

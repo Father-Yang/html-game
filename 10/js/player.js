@@ -56,7 +56,9 @@ class Player {
 
         this.stateMachine.init(this.idleState);//初始化状态机
 
-        
+        this.queuedAttack = false;//攻击延时帧状态标识，
+                                  //第1帧设置状态true，第2帧检测如果为true执行攻击状态切换并重置为false
+
         // this.collider = new CapsuleCollider(
         //     this.globalPosition.sub(this.colliderSize.x * 0.5, this.colliderSize.y),
         //     this.colliderSize,this);
@@ -70,6 +72,7 @@ class Player {
         this.collider.setType(CollisionType.Player);
     }
 
+    //初始化所有的精灵图集
     #initSprites(imageID){
         const image = document.getElementById(imageID);
         const sprites_config = [
@@ -113,6 +116,7 @@ class Player {
         }
     }
     
+    //根据精灵图集生成动画
     #initAnimation(){
         this.animationPlayer.initAnimations(this);
     }
@@ -184,7 +188,20 @@ class Player {
         }  
     }
 
+    //设置攻击延时帧执行状态，下一帧执行
+    setAttackStateWithDelay() {
+        this.queuedAttack = true;
+    }
+
+    #changeAttackStateWithDelay(){
+        if (this.queuedAttack) {
+            this.stateMachine.change(this.basicAttackState);
+        }
+        this.queuedAttack = false;
+    }
+
     update(deltaTime){
+        this.#changeAttackStateWithDelay(); //先检测是否有延时切换状态
         // if(this.globalPosition.y > this.fallMaxDistance){ //TODO 重置初始位置有BUG 
         //     this.globalPosition = this.initGlobalPosition.clone();
         //     return;
