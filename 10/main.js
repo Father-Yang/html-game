@@ -55,7 +55,6 @@ window.addEventListener('load', function(){
                 );
             }
 
-
             this.camera.restore(context);
                         
         }
@@ -78,8 +77,8 @@ window.addEventListener('load', function(){
     const logicFPS = 1000 / 60;
     let lastTime = performance.now();
     let timer = 0;       //计时器
-    let debug_timer = 1; //显示逻辑帧计时器
-
+    let debug_timer = 1; //逻辑帧计时器(debug用)
+    window.frameCount = 0;  //逻辑帧计数器
 
     function mainLoop(timeStamp){
         // 关闭像素平滑，需要每次刷新都设置
@@ -96,7 +95,8 @@ window.addEventListener('load', function(){
 
         timer += deltaTime;
 
-        while(timer >= logicFPS){        
+        while(timer >= logicFPS){  
+            // if(debug) console.log("CurrentFrame:", frameCount ++);      
             game.update(logicFPS * 0.001); 
             debug_timer = timer;
             timer -= logicFPS;         

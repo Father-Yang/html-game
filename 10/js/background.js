@@ -2,7 +2,7 @@ class ParallaxBackground {
     constructor(camera) {
         this.layers = [];
         [{image: "layer1", speed: 0, scale:2.5, position:new Vector2(0,0)},      
-         {image: "layer2", speed: 0.1, scale:2.5, position:new Vector2(0,80)}    
+         {image: "layer2", speed: 5, scale:2.5, position:new Vector2(0,200)}    
         ].forEach(element => {
             const image = document.getElementById(element.image);
             this.layers.push({

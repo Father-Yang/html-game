@@ -31,12 +31,13 @@ class State{
         this.debug = false;//是否开启调试输出
     }
     enter(){
-        this.debug = false;
+        this.debug = false;  
         console.log(this.stateName + ":enter");  
     }
     update(deltaTime){
         // console.log(this.stateName + ":update"); 
         if(this.debug){
+            console.log("CurrentFrame:", frameCount ++);    
             console.log(this.player.animationPlayer.currentAnim.name, this.player.animationPlayer.currentAnim.currentFrame);
         }    
         this.dashCooldownTimer -=  deltaTime;

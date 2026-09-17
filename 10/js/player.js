@@ -14,7 +14,7 @@ class Player {
 
         this.velocity = new Vector2(0, 0); //角色速度向量
         this.moveSpeed = 250;//角色x轴移动速度
-        this.jumpSpeed = 6;//角色跳跃速度
+        this.jumpSpeed = 5;//角色跳跃速度
         this.wallSpeed = 4;//角色下滑速度
         this.gravity = game.gravity; // 游戏重力
         this.wallJumpSpeed = new Vector2(4, 4);//角色墙体跳跃速度
