@@ -22,7 +22,13 @@ class Camera {
         this.smoothSpeed = 5; //摄像机平滑移动
         this.threshold = 1;//摄像机临近阈值
 
-        this.offset = new Vector2(0, 30);
+        this.offset = new Vector2(0, 30);//固定底边偏移
+
+        // ---- 新增：摄像机抖动 ----
+        this.shakeTime = 0;
+        this.shakeDuration = 0;
+        this.shakeMagnitude = 0;
+        this.shakeOffset = new Vector2(0, 0);
 
         // console.log(this.leftLimit , this.rightLimit, this.topLimit, this.bottomLimit)
     }
@@ -36,6 +42,13 @@ class Camera {
         // this.globalPosition = target.globalPosition.sub(
         //     new Vector2(centerX, centerY)
         // );
+    }
+
+    // ---- 新增：触发抖动 ----
+    shake(duration, magnitude) {
+        this.shakeTime = duration;       // 持续时间（秒），比如 0.3
+        this.shakeDuration = duration;   // 记录初始值，用来算衰减
+        this.shakeMagnitude = magnitude; // 幅度（像素），比如 8
     }
 
     update(deltaTime) {
@@ -83,13 +96,31 @@ class Camera {
                 this.globalPosition.y += diffBottom * this.smoothSpeed * deltaTime;
             }
         }
+
+        // ---- 新增：更新抖动 ----
+        if (this.shakeTime > 0) {
+            console.log("Camera shakeTime:",this.shakeTime)
+            this.shakeTime -= deltaTime;
+
+            if (this.shakeTime <= 0) {
+                this.shakeOffset.x = 0;
+                this.shakeOffset.y = 0;
+            } else {
+                // 随时间衰减
+                const decay = this.shakeTime / this.shakeDuration;
+                const mag = this.shakeMagnitude * decay;
+                this.shakeOffset.x = (Math.random() - 0.5) * 2 * mag;
+                this.shakeOffset.y = (Math.random() - 0.5) * 2 * mag;
+            }
+        }
     }
 
     apply(context) {
         context.save();
-        // context.translate(-this.globalPosition.x, -this.globalPosition.y);
-         context.translate(-(this.globalPosition.x + this.offset.x),
-                           -(this.globalPosition.y + this.offset.y));
+        context.translate(
+            -(this.globalPosition.x + this.offset.x + this.shakeOffset.x),
+            -(this.globalPosition.y + this.offset.y + this.shakeOffset.y)
+        );
     }
 
     restore(context) {

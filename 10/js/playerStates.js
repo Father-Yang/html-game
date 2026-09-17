@@ -445,6 +445,8 @@ class PlayerJumpAttackState extends State{
             this.player.setVelocity(new Vector2(0 , this.player.velocity.y));
 
             this.player.animationPlayer.play("Jump_Attack_End");
+            // 攻击命中增加摄像机抖动 (持续时间，抖动像素)
+            this.player.game.camera.shake(0.5, 3);
         }
         if(this.triggerCalled && this.player.groundDetected){
             this.stateMachine.change(this.player.idleState); 
