@@ -202,10 +202,6 @@ class Player {
 
     update(deltaTime){
         this.#changeAttackStateWithDelay(); //先检测是否有延时切换状态
-        // if(this.globalPosition.y > this.fallMaxDistance){ //TODO 重置初始位置有BUG 
-        //     this.globalPosition = this.initGlobalPosition.clone();
-        //     return;
-        // }
         this.handleCollisionDetection(); //先做物理碰撞检测再更新状态机
 
         this.stateMachine.update(deltaTime);//状态机更新
@@ -218,7 +214,12 @@ class Player {
         spriteFrames.forEach(sprite =>{
             sprite.facingDir = this.facingDir;
             sprite.globalPosition = this.globalPosition;
-        })   
+        }) 
+        
+        if(this.globalPosition.y > this.fallMaxDistance){ //TODO 重置初始位置有BUG 
+            this.globalPosition = this.initGlobalPosition.clone();
+            return;
+        }  
     }
 
     draw(context){
