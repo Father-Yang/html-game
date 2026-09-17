@@ -41,6 +41,8 @@ window.addEventListener('load', function(){
             this.camera.update(deltaTime); //必须先更行player再更新摄像机
             this.parallax.update(deltaTime);//更新完摄像机再更新视差图
 
+            particleManger.update(deltaTime);// 更新离子系统
+
             Input.endFrame();//物理帧结束清除输入
         }
         draw(context){
@@ -48,6 +50,7 @@ window.addEventListener('load', function(){
 
             this.parallax.draw(context);//视差背景
             this.tilemap.draw(context); //瓦片地图
+            particleManger.draw(context);// 离子系统
             this.player.draw(context);//角色  
 
             if(debug){

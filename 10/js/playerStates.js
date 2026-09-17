@@ -313,6 +313,7 @@ class PlayerDashState extends State{
     update(deltaTime){
         super.update(deltaTime);
         this.player.animationPlayer.update(deltaTime);
+        particleManger.addParticle(new Trail(this.player.animationPlayer.currentAnim.getCurrentFrameSprite(), 0.6));
 
         this.cancelDashIfNeeded();
 
@@ -327,6 +328,8 @@ class PlayerDashState extends State{
                 this.stateMachine.change(this.player.fallState);   
             }
         }
+        // console.log(this.player.animationPlayer.currentAnim.getCurrentFrameSprite())
+
     }
     exit(){
         super.exit();

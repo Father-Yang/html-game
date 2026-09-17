@@ -79,6 +79,10 @@ class Animation {
         this.currentFrame = 0;
     }
 
+    getCurrentFrameSprite(){
+        return this.frameList[this.currentFrame];
+    }
+
     update(deltaTime) {
         // console.log("this.currentAnim.update:==>",this.name, this.currentFrame)
         if(this.timer >= this.duration){
